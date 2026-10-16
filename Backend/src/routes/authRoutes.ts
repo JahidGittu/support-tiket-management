@@ -10,5 +10,6 @@ router.post("/register", validateBody(registerSchema), authController.register);
 router.post("/login", validateBody(loginSchema), authController.login);
 router.get("/me", authGuard, authController.getMe);
 router.get("/staff", authGuard, authController.getStaffList);
+router.get("/customers", authGuard, authController.getCustomerList);
 
 export default router;

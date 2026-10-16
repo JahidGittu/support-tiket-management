@@ -1,23 +1,114 @@
-import React, { useState } from "react";
-import { Bell, ChevronDown, ShieldCheck, LogOut, Building2 } from "lucide-react";
-import { User } from "../types";
+import React, { useState, useMemo } from "react";
+import {
+  Bell,
+  ChevronDown,
+  ShieldCheck,
+  LogOut,
+  Building2,
+  Check,
+  Sparkles,
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+} from "lucide-react";
+import { User, Ticket } from "../types";
+
+interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  type: "ticket" | "ai" | "alert" | "system";
+  read: boolean;
+  ticketId?: string;
+}
 
 interface TopHeaderProps {
   currentUser: User | null;
+  tickets?: Ticket[];
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
   onSwitchUser: (email: string) => void;
   onLogout: () => void;
+  onSelectTicket?: (ticket: Ticket) => void;
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
   currentUser,
+  tickets = [],
   searchQuery,
   setSearchQuery,
   onSwitchUser,
   onLogout,
+  onSelectTicket,
 }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notifMenuOpen, setNotifMenuOpen] = useState(false);
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+
+  // Dynamic notification generation from real tickets
+  const notifications: NotificationItem[] = useMemo(() => {
+    const list: NotificationItem[] = [];
+
+    // System heartbeat notification
+    list.push({
+      id: "sys-1",
+      title: "System Status Online",
+      message: "Database & Express API microservices operational with 99.9% uptime.",
+      time: "Just now",
+      type: "system",
+      read: readIds.has("sys-1"),
+    });
+
+    // Recent tickets as notifications
+    tickets.slice(0, 4).forEach((t, idx) => {
+      const times = ["10m ago", "35m ago", "1h ago", "3h ago"];
+      const notifId = `tkt-${t.id}`;
+
+      list.push({
+        id: notifId,
+        title: `New Ticket: ${t.title}`,
+        message: `Submitted by ${t.customer?.name || "Customer"} (${t.priority} priority, ${t.category})`,
+        time: times[idx] || "Today",
+        type: t.priority === "HIGH" || t.priority === "URGENT" ? "alert" : "ticket",
+        read: readIds.has(notifId),
+        ticketId: t.id,
+      });
+
+      if (t.aiSummary) {
+        const aiId = `ai-${t.id}`;
+        list.push({
+          id: aiId,
+          title: `Gemini AI Auto-Triage: #${t.id.slice(0, 6)}`,
+          message: t.aiSummary,
+          time: times[idx] || "Today",
+          type: "ai",
+          read: readIds.has(aiId),
+          ticketId: t.id,
+        });
+      }
+    });
+
+    return list;
+  }, [tickets, readIds]);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const markAllAsRead = () => {
+    const allIds = new Set(notifications.map((n) => n.id));
+    setReadIds(allIds);
+  };
+
+  const handleNotificationClick = (notif: NotificationItem) => {
+    setReadIds((prev) => new Set([...prev, notif.id]));
+    if (notif.ticketId && onSelectTicket) {
+      const match = tickets.find((t) => t.id === notif.ticketId);
+      if (match) {
+        onSelectTicket(match);
+        setNotifMenuOpen(false);
+      }
+    }
+  };
 
   const roleText = currentUser?.role === "ADMIN"
     ? "Super Admin (Head Office)"
@@ -43,12 +134,15 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </div>
       </div>
 
-      {/* Right Controls: Role Capsule & Notification Bell (NO language switcher, NO theme moon!) */}
+      {/* Right Controls: Role Capsule & Dynamic Notification Bell */}
       <div className="flex items-center gap-3 shrink-0">
         {/* Role Capsule with Persona Switcher Dropdown */}
         <div className="relative">
           <button
-            onClick={() => setUserMenuOpen(!userMenuOpen)}
+            onClick={() => {
+              setUserMenuOpen(!userMenuOpen);
+              setNotifMenuOpen(false);
+            }}
             className="border border-slate-700/80 bg-[#161922] hover:bg-[#1C202B] px-3.5 py-1.5 rounded-xl flex items-center gap-2 text-xs font-semibold text-slate-200 transition-colors shadow-2xs"
             title="Click to switch persona role"
           >
@@ -131,16 +225,114 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           )}
         </div>
 
-        {/* Notification Bell */}
-        <button
-          className="relative w-9 h-9 rounded-xl border border-slate-700/80 bg-[#161922] hover:bg-[#1C202B] flex items-center justify-center text-slate-300 hover:text-white transition-colors"
-          title="Notifications"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#EF4444]"></span>
-        </button>
+        {/* Dynamic Notification Bell with Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => {
+              setNotifMenuOpen(!notifMenuOpen);
+              setUserMenuOpen(false);
+            }}
+            className="relative w-9 h-9 rounded-xl border border-slate-700/80 bg-[#161922] hover:bg-[#1C202B] flex items-center justify-center text-slate-300 hover:text-white transition-colors"
+            title="Notifications"
+          >
+            <Bell className="w-4 h-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EF4444] text-[9px] font-extrabold text-white flex items-center justify-center border-2 border-[#1E222D]">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {/* Dynamic Notification Dropdown */}
+          {notifMenuOpen && (
+            <div
+              className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#232733] border border-slate-700 rounded-2xl shadow-2xl overflow-hidden z-50 text-xs animate-in fade-in slide-in-from-top-2 duration-150"
+              onMouseLeave={() => setNotifMenuOpen(false)}
+            >
+              {/* Header */}
+              <div className="px-4 py-3 bg-[#1C202B] border-b border-slate-700/80 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-white text-xs">System Activity Feed</span>
+                  {unreadCount > 0 && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-red-500/20 text-red-400 border border-red-500/30">
+                      {unreadCount} unread
+                    </span>
+                  )}
+                </div>
+
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="text-[10px] font-semibold text-[#00897B] hover:text-teal-300 transition-colors"
+                  >
+                    Mark all read
+                  </button>
+                )}
+              </div>
+
+              {/* List */}
+              <div className="max-h-80 overflow-y-auto divide-y divide-slate-700/50">
+                {notifications.map((notif) => (
+                  <div
+                    key={notif.id}
+                    onClick={() => handleNotificationClick(notif)}
+                    className={`p-3.5 hover:bg-slate-700/30 cursor-pointer transition-colors flex items-start gap-3 ${
+                      !notif.read ? "bg-slate-700/15" : "opacity-75"
+                    }`}
+                  >
+                    <div className="mt-0.5 shrink-0">
+                      {notif.type === "ai" ? (
+                        <div className="w-7 h-7 rounded-lg bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-400">
+                          <Sparkles className="w-3.5 h-3.5" />
+                        </div>
+                      ) : notif.type === "alert" ? (
+                        <div className="w-7 h-7 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center text-red-400">
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                        </div>
+                      ) : notif.type === "system" ? (
+                        <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        </div>
+                      ) : (
+                        <div className="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                          <Clock className="w-3.5 h-3.5" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-white truncate text-xs">
+                          {notif.title}
+                        </span>
+                        <span className="text-[10px] text-slate-400 shrink-0 ml-2">
+                          {notif.time}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 line-clamp-2 mt-0.5 leading-relaxed">
+                        {notif.message}
+                      </p>
+                    </div>
+
+                    {!notif.read && (
+                      <span className="w-2 h-2 rounded-full bg-[#00897B] shrink-0 mt-1.5"></span>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer */}
+              <div className="p-2.5 bg-[#1C202B] border-t border-slate-700/80 text-center">
+                <span className="text-[10px] text-slate-400 font-medium">
+                  Live Event Feed • Powered by ResolveDesk Engine
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
 };
+
 

@@ -39,6 +39,11 @@ export const api = {
     return res.data.data;
   },
 
+  getCustomers: async (): Promise<any[]> => {
+    const res = await apiClient.get("/auth/customers");
+    return res.data.data;
+  },
+
   getTickets: async (params?: { status?: string; priority?: string; category?: string; search?: string }): Promise<Ticket[]> => {
     const res = await apiClient.get("/tickets", { params });
     return res.data.data;

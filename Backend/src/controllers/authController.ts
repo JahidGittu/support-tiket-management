@@ -149,3 +149,33 @@ export const getStaffList = async (req: AuthenticatedRequest, res: Response, nex
     next(error);
   }
 };
+
+export const getCustomerList = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  try {
+    const customers = await prisma.user.findMany({
+      where: {
+        role: "CUSTOMER",
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        _count: {
+          select: {
+            createdTickets: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: customers,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
