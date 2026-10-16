@@ -12,11 +12,7 @@ import { TicketDetailModal } from "./components/TicketDetailModal";
 import { LoginModal } from "./components/LoginModal";
 import { TicketsView } from "./components/views/TicketsView";
 import { CustomersView } from "./components/views/CustomersView";
-import { TeamView } from "./components/views/TeamView";
-import { KnowledgeBaseView } from "./components/views/KnowledgeBaseView";
-import { ReportsView } from "./components/views/ReportsView";
 import { SettingsView } from "./components/views/SettingsView";
-import { AIAssistantView } from "./components/views/AIAssistantView";
 import { Calendar } from "lucide-react";
 
 export function App() {
@@ -197,20 +193,8 @@ export function App() {
             />
           ) : activeMenu === "Customers" ? (
             <CustomersView tickets={tickets} />
-          ) : activeMenu === "Team" ? (
-            <TeamView
-              staffList={staffList}
-              tickets={tickets}
-              currentUser={currentUser}
-            />
-          ) : activeMenu === "Knowledge Base" ? (
-            <KnowledgeBaseView />
-          ) : activeMenu === "Reports" ? (
-            <ReportsView tickets={tickets} counts={counts} />
           ) : activeMenu === "Settings" ? (
             <SettingsView />
-          ) : activeMenu === "AI Assistant" ? (
-            <AIAssistantView tickets={tickets} onSelectTicket={handleSelectTicket} />
           ) : (
             /* Default: Modern Support Ticket Dashboard Overview */
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-7 items-start">
