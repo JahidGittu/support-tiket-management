@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import process from "process";
 
 const prisma = new PrismaClient();
 
@@ -95,7 +96,7 @@ async function main() {
       description: "User is unable to log in after password reset link expired.",
       category: "ACCOUNT" as const,
       priority: "MEDIUM" as const,
-      status: "CUSTOMER_REPLIED" as const,
+      status: "CUSTOMER_REPLIED" as any,
       customerEmail: "sadia@example.com",
       aiSummary: "Password reset token expired; customer replied requesting direct OTP access.",
       aiSuggestedReply: "Hello Sadia, we have issued a fresh 24-hour secure password reset link to your registered email address.",

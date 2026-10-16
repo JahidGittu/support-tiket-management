@@ -119,11 +119,11 @@ export const createTicket = async (data: {
 
 export const updateTicketStatus = async (
   ticketId: string,
-  newStatus: TicketStatus
+  newStatus: TicketStatus | "CUSTOMER_REPLIED" | string
 ) => {
   return prisma.ticket.update({
     where: { id: ticketId },
-    data: { status: newStatus },
+    data: { status: newStatus as any },
     include: {
       customer: { select: { id: true, name: true, email: true } },
       assignedTo: { select: { id: true, name: true, email: true } },
