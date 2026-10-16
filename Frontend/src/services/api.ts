@@ -3,44 +3,73 @@ import { Ticket, TicketComment, User, AiTriageResult } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5050/api/v1";
 
-export const apiClient = axios.create({
+// 1. PUBLIC AXIOS INSTANCE (No token attached, for public login/signup)
+export const publicAxios = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("resolvedesk_token");
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+// 2. PRIVATE AXIOS INSTANCE (Authenticated endpoints with JWT Bearer token & 401 interceptor)
+export const privateAxios = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
+
+// Request Interceptor: Attach token to headers
+privateAxios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("resolvedesk_token");
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response Interceptor: Handle 401 Unauthorized globally
+privateAxios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("resolvedesk_token");
+      // Optional: dispatch event so App can detect session expiry
+      window.dispatchEvent(new Event("auth_unauthorized"));
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Backward-compatible alias
+export const apiClient = privateAxios;
 
 export const api = {
   login: async (email: string, password: string): Promise<{ user: User; token: string }> => {
-    const res = await apiClient.post("/auth/login", { email, password });
+    const res = await publicAxios.post("/auth/login", { email, password });
     return res.data.data;
   },
 
   register: async (name: string, email: string, password: string, role?: string): Promise<{ user: User; token: string }> => {
-    const res = await apiClient.post("/auth/register", { name, email, password, role });
+    const res = await publicAxios.post("/auth/register", { name, email, password, role });
     return res.data.data;
   },
 
   getMe: async (): Promise<User> => {
-    const res = await apiClient.get("/auth/me");
+    const res = await privateAxios.get("/auth/me");
     return res.data.data;
   },
 
   getStaff: async (): Promise<User[]> => {
-    const res = await apiClient.get("/auth/staff");
+    const res = await privateAxios.get("/auth/staff");
     return res.data.data;
   },
 
   getCustomers: async (): Promise<any[]> => {
-    const res = await apiClient.get("/auth/customers");
+    const res = await privateAxios.get("/auth/customers");
     return res.data.data;
   },
 

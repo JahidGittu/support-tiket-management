@@ -15,11 +15,13 @@ import { CustomersView } from "./components/views/CustomersView";
 import { SettingsView } from "./components/views/SettingsView";
 import { CustomerPortalView } from "./components/views/CustomerPortalView";
 import { SmartQueueWidget } from "./components/SmartQueueWidget";
+import { AuthView } from "./components/views/AuthView";
 import { StaffLoad, ActivityLog } from "./types";
 import { Calendar } from "lucide-react";
 
 export function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authChecking, setAuthChecking] = useState(true);
   const [staffList, setStaffList] = useState<User[]>([]);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("Dashboard");
@@ -119,27 +121,32 @@ export function App() {
           loadStaff();
         } catch {
           localStorage.removeItem("resolvedesk_token");
-          autoLoginDefault();
+          setCurrentUser(null);
         }
       } else {
-        autoLoginDefault();
+        setCurrentUser(null);
       }
+      setAuthChecking(false);
     };
 
     initAuth();
+
+    const handleUnauthorized = () => {
+      setCurrentUser(null);
+      localStorage.removeItem("resolvedesk_token");
+    };
+    window.addEventListener("auth_unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth_unauthorized", handleUnauthorized);
   }, []);
 
-  const autoLoginDefault = async () => {
-    const p = window.location.pathname.toLowerCase();
-    const isAdmin = p.startsWith("/admin") || p.startsWith("/support-agent") || p.startsWith("/agent");
-    const defaultEmail = isAdmin ? "admin@resolvedesk.com" : "arif@example.com";
-    try {
-      const { user, token } = await api.login(defaultEmail, "password123");
-      localStorage.setItem("resolvedesk_token", token);
-      setCurrentUser(user);
-      loadStaff();
-    } catch {
-      setIsLoginOpen(true);
+  const handleAuthSuccess = (user: User) => {
+    setCurrentUser(user);
+    loadStaff();
+    loadQueueData();
+    if (user.role === "CUSTOMER") {
+      navigateToCustomer();
+    } else {
+      navigateToAdmin();
     }
   };
 
@@ -245,7 +252,24 @@ export function App() {
 
   const firstName = currentUser?.name ? currentUser.name.split(" ")[0] : "Rafsan";
 
-  // 1. If at root route "/", render the dedicated Customer Support Portal UI matching user reference
+  // 1. Loading screen while validating JWT token
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-[#F4F7FB] flex items-center justify-center font-['Plus_Jakarta_Sans',sans-serif]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-9 h-9 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs font-bold text-slate-500">Initializing Secure Session...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. PUBLIC ROUTE GUARD: If user is not authenticated, render the dedicated 2-way Sign In / Sign Up view
+  if (!currentUser) {
+    return <AuthView onAuthSuccess={handleAuthSuccess} />;
+  }
+
+  // 3. PRIVATE ROUTE: If at root route "/", render the dedicated Customer Support Portal UI matching user reference
   if (currentRoute === "CUSTOMER") {
     return (
       <div className="min-h-screen bg-[#F8F9FA] text-slate-800 font-['Plus_Jakarta_Sans',sans-serif]">
