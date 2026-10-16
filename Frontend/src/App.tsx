@@ -120,7 +120,6 @@ export function App() {
     }
   };
 
-  // Live Counts for filters and stats matching reference UI
   const counts = {
     all: Math.max(124, tickets.length),
     open: 48,
@@ -132,8 +131,8 @@ export function App() {
   const firstName = currentUser?.name ? currentUser.name.split(" ")[0] : "Rafsan";
 
   return (
-    <div className="min-h-screen bg-[#F4F7FB] text-slate-800 flex font-['Plus_Jakarta_Sans',sans-serif]">
-      {/* 1. Left Dark Navy Sidebar */}
+    <div className="flex h-screen bg-[#F4F7FB] text-slate-800 font-['Plus_Jakarta_Sans',sans-serif] overflow-hidden">
+      {/* 1. Left Dark Navy Sidebar (SupportHub) */}
       <Sidebar
         currentUser={currentUser}
         activeMenu={activeMenu}
@@ -144,8 +143,8 @@ export function App() {
       />
 
       {/* 2. Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        {/* Top Header */}
+      <div className="flex-1 flex flex-col h-screen overflow-y-auto min-w-0">
+        {/* Top Header Bar */}
         <TopHeader
           currentUser={currentUser}
           searchQuery={searchQuery}
@@ -154,39 +153,38 @@ export function App() {
           onLogout={handleLogout}
         />
 
-        {/* Dashboard Main Canvas */}
-        <main className="p-8 space-y-7 max-w-[1600px] w-full mx-auto">
-          {/* Greeting Row */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                Good morning, {firstName} <span className="inline-block animate-bounce">👋</span>
-              </h1>
-              <p className="text-xs text-slate-500 mt-1 font-medium">
-                Here's what's happening with your support today.
-              </p>
-            </div>
+        {/* Dashboard Main Canvas with 2-Column Layout */}
+        <main className="p-7 max-w-[1700px] w-full mx-auto">
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-7 items-start">
+            {/* Left/Center Main Column (xl:col-span-8) */}
+            <div className="xl:col-span-8 space-y-6">
+              {/* Greeting Row (Directly above the 4 Metric Cards!) */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                    Good morning, {firstName} <span className="inline-block">👋</span>
+                  </h1>
+                  <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                    Here's what's happening with your support today.
+                  </p>
+                </div>
 
-            <div className="flex items-center gap-3">
-              {/* Date Badge */}
-              <div className="bg-white border border-slate-200/90 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-600 flex items-center gap-2 shadow-2xs">
-                <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                <span>Wed, 16 Oct 2026</span>
+                <div className="flex items-center gap-2.5">
+                  {/* Wed, 16 Oct 2026 */}
+                  <div className="bg-white border border-slate-200/90 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-600 flex items-center gap-2 shadow-2xs">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Wed, 16 Oct 2026</span>
+                  </div>
+
+                  {/* System Online */}
+                  <div className="bg-emerald-50 border border-emerald-200/70 text-emerald-700 rounded-xl px-3 py-1.5 text-xs font-bold flex items-center gap-2 shadow-2xs">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>System Online</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Status Badge */}
-              <div className="bg-emerald-50 border border-emerald-200/70 text-emerald-700 rounded-xl px-3.5 py-2 text-xs font-bold flex items-center gap-2 shadow-2xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>System Online</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 2-Column Responsive Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
-            {/* Left Main Column (8 of 12 cols) */}
-            <div className="lg:col-span-8 space-y-7">
-              {/* 4 Top Metric Cards */}
+              {/* 4 Top Metric Cards (Directly below Greeting Row) */}
               <MetricCards
                 totalCount={counts.all}
                 openCount={counts.open}
@@ -194,7 +192,7 @@ export function App() {
                 avgResponseTime="2h 14m"
               />
 
-              {/* Recent Tickets Table */}
+              {/* Recent Tickets Table Section */}
               <TicketsTable
                 tickets={tickets}
                 statusFilter={statusFilter}
@@ -208,8 +206,8 @@ export function App() {
               <AiHelpBanner onOpenAi={() => setIsCreateOpen(true)} />
             </div>
 
-            {/* Right Panel Column (4 of 12 cols) */}
-            <div className="lg:col-span-4">
+            {/* Right Sidebar Column (xl:col-span-4) - Extends from Top to Bottom */}
+            <div className="xl:col-span-4 space-y-6">
               <RightPanel
                 onOpenCreate={() => setIsCreateOpen(true)}
                 onOpenAiSuggestion={() => setIsCreateOpen(true)}
