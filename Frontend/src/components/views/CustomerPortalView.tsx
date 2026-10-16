@@ -1,37 +1,24 @@
 import React, { useState } from "react";
 import {
-  Search,
   Plus,
-  Mail,
-  Bell,
+  Send,
   ChevronDown,
   Reply as ReplyIcon,
-  Edit3,
   RotateCcw,
-  ThumbsUp,
   MessageSquare,
-  Eye,
   Paperclip,
-  Lock,
-  Pin,
-  Home,
-  BookOpen,
   User as UserIcon,
-  Grid,
-  BarChart2,
-  Bold,
-  Italic,
-  Underline,
-  List,
-  Link as LinkIcon,
-  Image as ImageIcon,
-  Maximize2,
   Shield,
   LogOut,
-  Send,
   CheckCircle,
+  Sparkles,
+  AlertCircle,
+  Loader2,
+  FileText,
+  Clock,
+  ArrowRight,
 } from "lucide-react";
-import { Ticket, User } from "../../types";
+import { Ticket, User, Category, Priority } from "../../types";
 import { api } from "../../services/api";
 
 interface CustomerPortalViewProps {
@@ -42,6 +29,7 @@ interface CustomerPortalViewProps {
   onSwitchUser: (email: string) => void;
   onLogout: () => void;
   onRefreshTicket: (ticketId: string) => void;
+  onTicketCreated?: () => void;
 }
 
 export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
@@ -52,25 +40,105 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
   onSwitchUser,
   onLogout,
   onRefreshTicket,
+  onTicketCreated,
 }) => {
-  // Filter tickets belonging to current customer or all if demo
-  const customerTickets = tickets.filter(
-    (t) => currentUser?.role !== "CUSTOMER" || t.customerId === currentUser?.id || true
-  );
+  // Filter tickets for current customer portal view (backend already scopes tickets by user)
+  const customerTickets = tickets;
+
+  // Default viewMode: "CREATE" so customer immediately sees the Support Ticket Submission Form!
+  const [viewMode, setViewMode] = useState<"CREATE" | "THREAD">("CREATE");
 
   const [selectedTicketId, setSelectedTicketId] = useState<string>(
     customerTickets[0]?.id || ""
   );
+
+  // Create Ticket Form States
+  const [createTitle, setCreateTitle] = useState("");
+  const [createDescription, setCreateDescription] = useState("");
+  const [createCategory, setCreateCategory] = useState<Category>("GENERAL");
+  const [createPriority, setCreatePriority] = useState<Priority>("MEDIUM");
+  const [creatingTicket, setCreatingTicket] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [aiAnalyzing, setAiAnalyzing] = useState(false);
+  const [aiSuccess, setAiSuccess] = useState(false);
+
+  // Conversation Reply States
   const [commentMessage, setCommentMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [notifyToggle, setNotifyToggle] = useState(true);
-  const [likesCount, setLikesCount] = useState(12);
-  const [hasLiked, setHasLiked] = useState(false);
   const [profileDropdown, setProfileDropdown] = useState(false);
 
   const activeTicket =
     customerTickets.find((t) => t.id === selectedTicketId) || customerTickets[0];
 
+  // AI Auto-Classification for new ticket
+  const handleAiTriage = async () => {
+    if (createTitle.trim().length < 3 || createDescription.trim().length < 5) {
+      setCreateError("Please enter a short title and description first to run AI triage.");
+      return;
+    }
+
+    setCreateError(null);
+    setAiAnalyzing(true);
+    setAiSuccess(false);
+
+    try {
+      const result = await api.classifyTicket(createTitle, createDescription);
+      setCreateCategory(result.category);
+      setCreatePriority(result.priority);
+      setAiSuccess(true);
+      setTimeout(() => setAiSuccess(false), 4000);
+    } catch {
+      setCreateError("AI triage service temporarily unavailable. You can choose category manually.");
+    } finally {
+      setAiAnalyzing(false);
+    }
+  };
+
+  // Submit Support Ticket Form
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (createTitle.trim().length < 5) {
+      setCreateError("Issue title must be at least 5 characters long");
+      return;
+    }
+
+    if (createDescription.trim().length < 10) {
+      setCreateError("Please describe your problem with at least 10 characters");
+      return;
+    }
+
+    setCreatingTicket(true);
+    setCreateError(null);
+
+    try {
+      const newTicket = await api.createTicket({
+        title: createTitle.trim(),
+        description: createDescription.trim(),
+        category: createCategory,
+        priority: createPriority,
+      });
+
+      // Clear Form
+      setCreateTitle("");
+      setCreateDescription("");
+      setCreateCategory("GENERAL");
+      setCreatePriority("MEDIUM");
+
+      // Notify App to reload tickets
+      if (onTicketCreated) onTicketCreated();
+
+      // Automatically select the new ticket and switch to tracking thread!
+      setSelectedTicketId(newTicket.id);
+      setViewMode("THREAD");
+    } catch (err: any) {
+      setCreateError(err.response?.data?.message || "Failed to submit ticket");
+    } finally {
+      setCreatingTicket(false);
+    }
+  };
+
+  // Customer reply submission
   const handleSendReply = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentMessage.trim() || !activeTicket) return;
@@ -87,72 +155,57 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
     }
   };
 
-  const handleLike = () => {
-    if (hasLiked) {
-      setLikesCount((prev) => prev - 1);
-      setHasLiked(false);
-    } else {
-      setLikesCount((prev) => prev + 1);
-      setHasLiked(true);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-slate-800 font-['Plus_Jakarta_Sans',sans-serif] flex flex-col">
       {/* 1. TOP HEADER BAR */}
       <header className="bg-white border-b border-slate-200/90 h-16 px-6 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-8 flex-1">
+        <div className="flex items-center gap-6">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-black text-lg shadow-sm shadow-emerald-500/20">
               S
             </div>
-            <span className="font-extrabold text-slate-900 tracking-tight text-sm hidden sm:inline">
+            <span className="font-extrabold text-slate-900 tracking-tight text-sm">
               Support Ticket <span className="text-emerald-600 font-normal">Management</span>
             </span>
           </div>
 
-          {/* Help Center search bar - Commented out because no external website/app exists
-          <div className="relative flex-1 max-w-md hidden md:block">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search for help topics, categories, or ticket #..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200/90 rounded-full text-xs text-slate-700 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-            />
+          {/* Mode Switcher Tabs */}
+          <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-full text-xs font-bold">
+            <button
+              onClick={() => setViewMode("CREATE")}
+              className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${
+                viewMode === "CREATE"
+                  ? "bg-white text-slate-900 shadow-xs"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              <Plus className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Submit Ticket Form</span>
+            </button>
+
+            {customerTickets.length > 0 && (
+              <button
+                onClick={() => setViewMode("THREAD")}
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${
+                  viewMode === "THREAD"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-blue-600" />
+                <span>Track Tickets ({customerTickets.length})</span>
+              </button>
+            )}
           </div>
-          */}
         </div>
 
-        {/* Right Action Controls */}
+        {/* Right Action Controls: User Profile Pill */}
         <div className="flex items-center gap-4">
-          {/* Green New Ticket Button */}
-          <button
-            onClick={onOpenCreate}
-            className="bg-[#22C55E] hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-sm shadow-emerald-600/20 transition-all cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>New Ticket</span>
-            <ChevronDown className="w-3 h-3 ml-0.5 opacity-80" />
-          </button>
-
-          {/* Dummy Notification Icons - Commented out per user request
-          <div className="relative cursor-pointer text-slate-500 hover:text-slate-800 p-1.5">
-            <Mail className="w-4 h-4" />
-            <span className="w-2 h-2 rounded-full bg-emerald-500 absolute top-1 right-1 ring-2 ring-white"></span>
-          </div>
-
-          <div className="relative cursor-pointer text-slate-500 hover:text-slate-800 p-1.5">
-            <Bell className="w-4 h-4" />
-            <span className="w-2 h-2 rounded-full bg-amber-500 absolute top-1 right-1 ring-2 ring-white"></span>
-          </div>
-          */}
-
-          {/* User Profile Pill */}
           <div className="relative">
             <button
               onClick={() => setProfileDropdown(!profileDropdown)}
-              className="flex items-center gap-2 p-1 pl-2 bg-slate-50 hover:bg-slate-100 rounded-full border border-slate-200 transition-colors"
+              className="flex items-center gap-2 p-1 pl-2 bg-slate-50 hover:bg-slate-100 rounded-full border border-slate-200 transition-colors cursor-pointer"
             >
               <div className="w-7 h-7 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center">
                 {currentUser?.name ? currentUser.name.slice(0, 2).toUpperCase() : "CU"}
@@ -163,38 +216,30 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 mr-1" />
             </button>
 
-            {/* Profile & Role Switcher Dropdown */}
+            {/* Profile Dropdown */}
             {profileDropdown && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
-                <div className="px-4 py-2.5 border-b border-slate-100">
-                  <div className="text-xs font-bold text-slate-900">{currentUser?.name}</div>
-                  <div className="text-[11px] text-slate-500">{currentUser?.email}</div>
-                  <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    Role: {currentUser?.role}
-                  </span>
+              <div
+                className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 py-1.5 z-50 text-xs animate-in fade-in zoom-in-95 duration-100"
+                onMouseLeave={() => setProfileDropdown(false)}
+              >
+                <div className="px-3 py-2 border-b border-slate-100">
+                  <div className="font-bold text-slate-900">{currentUser?.name}</div>
+                  <div className="text-[11px] text-slate-400">{currentUser?.email}</div>
+                  <div className="mt-1 text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full inline-block font-semibold">
+                    Customer Account
+                  </div>
                 </div>
 
-                <div className="p-2 space-y-1">
-                  <button
-                    onClick={() => {
-                      setProfileDropdown(false);
-                      onSwitchToAdmin();
-                    }}
-                    className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl flex items-center gap-2"
-                  >
-                    <Shield className="w-4 h-4 text-emerald-600" />
-                    <span>Go to Staff ERP (/admin)</span>
-                  </button>
-
-                  <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Switch Persona:
+                <div className="p-1">
+                  <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Quick Persona Switch
                   </div>
                   <button
                     onClick={() => {
                       onSwitchUser("arif@example.com");
                       setProfileDropdown(false);
                     }}
-                    className="w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg flex items-center justify-between"
+                    className="w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg flex items-center justify-between cursor-pointer"
                   >
                     <span>Arif Rahman (Customer)</span>
                     <span className="text-[10px] bg-slate-200 px-1.5 py-0.2 rounded font-mono">User</span>
@@ -204,17 +249,17 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
                       onSwitchUser("admin@supportticket.com");
                       setProfileDropdown(false);
                     }}
-                    className="w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg flex items-center justify-between"
+                    className="w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg flex items-center justify-between cursor-pointer"
                   >
                     <span>Rafsan Ahmed (Super Admin)</span>
                     <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.2 rounded font-mono">Admin</span>
                   </button>
                 </div>
 
-                <div className="border-t border-slate-100 p-2">
+                <div className="border-t border-slate-100 p-1">
                   <button
                     onClick={onLogout}
-                    className="w-full text-left px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl flex items-center gap-2"
+                    className="w-full text-left px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl flex items-center gap-2 cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Sign Out</span>
@@ -226,443 +271,476 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
         </div>
       </header>
 
-      {/* 2. BODY CONTENT (Main Content Centered, Sidebars Commented Out) */}
+      {/* 2. BODY CONTENT (Centered Container, No Sidebars) */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Thin Icon Navigation Bar - Commented out because no dedicated app/website is needed
+        {/* Left Thin Icon Navigation Bar - Commented out per user request */}
+        {/*
         <aside className="w-16 bg-white border-r border-slate-200/90 flex flex-col items-center py-6 gap-6 shrink-0 hidden sm:flex">
-          <button
-            onClick={onSwitchToAdmin}
-            title="Go to Staff ERP Dashboard"
-            className="p-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-          >
-            <Home className="w-5 h-5" />
-          </button>
-
-          <button
-            title="Active Ticket Thread"
-            className="p-2.5 rounded-xl text-emerald-600 bg-emerald-50/80 transition-colors relative"
-          >
-            <MessageSquare className="w-5 h-5" />
-            <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-emerald-500 rounded-l"></span>
-          </button>
-
-          <button
-            onClick={onOpenCreate}
-            title="Submit New Request"
-            className="p-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-          >
-            <BookOpen className="w-5 h-5" />
-          </button>
-
-          <button
-            title="Account Information"
-            className="p-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-          >
-            <UserIcon className="w-5 h-5" />
-          </button>
-
-          <button
-            title="Browse Knowledge Base"
-            className="p-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-          >
-            <Grid className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={onSwitchToAdmin}
-            title="Metrics & Admin Reports"
-            className="p-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-          >
-            <BarChart2 className="w-5 h-5" />
-          </button>
+          ...
         </aside>
         */}
 
-        {/* Center Main Ticket & Thread View */}
+        {/* Center Main View: Either Ticket Creation Form OR Ticket Conversation Thread */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8">
           <div className="max-w-3xl mx-auto space-y-6">
-            {/* Customer Tickets Quick Switcher (If Customer has multiple tickets) */}
-            {customerTickets.length > 1 && (
-              <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                <span className="text-[11px] font-bold text-slate-500 shrink-0 uppercase tracking-wider">
-                  Your Tickets ({customerTickets.length}):
-                </span>
-                {customerTickets.map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => setSelectedTicketId(t.id)}
-                    className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer ${
-                      t.id === activeTicket?.id
-                        ? "bg-emerald-600 text-white shadow-2xs"
-                        : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
-                    }`}
-                  >
-                    #TKT-{t.id.slice(0, 6)}: {t.title.slice(0, 24)}...
-                  </button>
-                ))}
-              </div>
-            )}
 
-            {activeTicket ? (
-              <>
-                {/* Clean Ticket Header & Action Buttons */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/60">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-slate-500">
-                        #TKT-{activeTicket.id.slice(0, 6)}
-                      </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">
-                        {activeTicket.category}
-                      </span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                        activeTicket.status === "RESOLVED"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : activeTicket.status === "IN_PROGRESS"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-amber-100 text-amber-700"
-                      }`}>
-                        {activeTicket.status}
-                      </span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                        activeTicket.priority === "URGENT" || activeTicket.priority === "HIGH"
-                          ? "bg-rose-100 text-rose-700"
-                          : "bg-slate-100 text-slate-600"
-                      }`}>
-                        {activeTicket.priority}
-                      </span>
-                    </div>
-
-                    <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
-                      {activeTicket.title}
-                    </h1>
+            {/* ======================================================== */}
+            {/* VIEW MODE 1: DEDICATED TICKET SUBMISSION FORM (DEFAULT) */}
+            {/* ======================================================== */}
+            {viewMode === "CREATE" ? (
+              <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden p-6 sm:p-8 space-y-6 animate-in fade-in duration-200">
+                {/* Form Title & Context */}
+                <div className="border-b border-slate-100 pb-5">
+                  <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs uppercase tracking-wider mb-1">
+                    <FileText className="w-4 h-4" />
+                    <span>Customer Support Ticket</span>
                   </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <a
-                      href="#reply-box"
-                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                    >
-                      <ReplyIcon className="w-3.5 h-3.5" />
-                      <span>Reply</span>
-                    </a>
-                    <button
-                      onClick={() => onRefreshTicket(activeTicket.id)}
-                      className="px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>Refresh</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* ORIGINAL TICKET ISSUE CARD */}
-                <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0">
-                        {activeTicket.customer?.name?.slice(0, 2).toUpperCase() || "CU"}
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
-                          <span>{activeTicket.customer?.name || "Customer"}</span>
-                          <span className="text-[10px] font-normal text-slate-400">Created topic</span>
-                        </div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">
-                          {new Date(activeTicket.createdAt).toLocaleDateString("en-US", {
-                            weekday: "short",
-                            day: "2-digit",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </div>
-                      </div>
-                    </div>
-
-                    <span
-                      className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                        activeTicket.priority === "URGENT" || activeTicket.priority === "HIGH"
-                          ? "bg-rose-50 text-rose-600 border border-rose-200"
-                          : "bg-blue-50 text-blue-600 border border-blue-200"
-                      }`}
-                    >
-                      {activeTicket.priority} Priority
-                    </span>
-                  </div>
-
-                  <p className="text-xs md:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap font-sans">
-                    {activeTicket.description}
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                    Submit a Support Ticket
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Fill in your problem details below. Your ticket will enter our FIFO queue and be assigned to an available support specialist.
                   </p>
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <button
-                      onClick={handleLike}
-                      className={`flex items-center gap-1.5 text-xs font-semibold transition-colors ${
-                        hasLiked ? "text-emerald-600" : "text-emerald-600/80 hover:text-emerald-700"
-                      }`}
-                    >
-                      <ThumbsUp className="w-3.5 h-3.5" />
-                      <span>{likesCount} People Upvoted this</span>
-                    </button>
-                    <span className="text-[11px] text-slate-400">Original Request</span>
-                  </div>
+                  {/* Previous Tickets Reminder (if any exist) */}
+                  {customerTickets.length > 0 && (
+                    <div className="mt-4 p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex items-center justify-between text-xs">
+                      <span className="text-emerald-800 font-medium">
+                        You have <strong>{customerTickets.length}</strong> previous ticket(s) on file.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setViewMode("THREAD")}
+                        className="px-3 py-1 bg-white text-emerald-700 hover:bg-emerald-100 rounded-xl font-bold border border-emerald-300 transition-colors flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>View My Tickets</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
-                {/* CONVERSATION TIMELINE REPLIES */}
-                {activeTicket.comments && activeTicket.comments.length > 0 && (
-                  <div className="space-y-4">
-                    {activeTicket.comments.map((comment) => {
-                      const isStaff = comment.user?.role !== "CUSTOMER";
-                      return (
-                        <div
-                          key={comment.id}
-                          className={`rounded-2xl border p-6 shadow-2xs space-y-3 ${
-                            isStaff
-                              ? "bg-emerald-50/30 border-emerald-200/60"
-                              : "bg-white border-slate-200/90"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`w-9 h-9 rounded-full text-white font-bold text-xs flex items-center justify-center shrink-0 ${
-                                  isStaff ? "bg-emerald-600" : "bg-slate-700"
-                                }`}
-                              >
-                                {comment.user?.name?.slice(0, 2).toUpperCase() || "ST"}
-                              </div>
-                              <div>
-                                <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
-                                  <span>{comment.user?.name || "Support Staff"}</span>
-                                  <span
-                                    className={`text-[9px] px-1.5 py-0.2 rounded font-semibold ${
-                                      isStaff
-                                        ? "bg-emerald-100 text-emerald-800"
-                                        : "bg-slate-100 text-slate-600"
-                                    }`}
-                                  >
-                                    {isStaff ? "Support Agent" : "Replied"}
-                                  </span>
-                                </div>
-                                <div className="text-[11px] text-slate-400 mt-0.5">
-                                  {new Date(comment.createdAt).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <p className="text-xs md:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
-                            {comment.message}
-                          </p>
-                        </div>
-                      );
-                    })}
+                {/* Error Banner */}
+                {createError && (
+                  <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-2xl flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+                    <span>{createError}</span>
                   </div>
                 )}
 
-                {/* 3. RICH TEXT REPLY COMPOSER (Matching Screenshot exactly) */}
-                <div id="reply-box" className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-6 space-y-4">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">
-                      {currentUser?.name?.slice(0, 2).toUpperCase() || "CU"}
+                {/* The Ticket Form */}
+                <form onSubmit={handleCreateSubmit} className="space-y-5">
+                  {/* 1. Issue Subject / Title */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      Issue Title / Subject <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Cannot complete payment with bKash gateway error 502"
+                      value={createTitle}
+                      onChange={(e) => setCreateTitle(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                      required
+                    />
+                  </div>
+
+                  {/* 2. Service Category Selection */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      Service Category
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {[
+                        { id: "TECHNICAL", label: "Technical Support", desc: "Bugs & Errors" },
+                        { id: "BILLING", label: "Billing & Payment", desc: "Refunds & Invoices" },
+                        { id: "ACCOUNT", label: "Account Services", desc: "Login & Access" },
+                        { id: "GENERAL", label: "General Inquiry", desc: "Other Questions" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setCreateCategory(item.id as Category)}
+                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                            createCategory === item.id
+                              ? "border-emerald-500 bg-emerald-50/80 text-emerald-900 font-bold shadow-2xs ring-1.5 ring-emerald-500/20"
+                              : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                          }`}
+                        >
+                          <div className="text-xs font-bold leading-tight">{item.label}</div>
+                          <div className="text-[10px] text-slate-400 mt-0.5">{item.desc}</div>
+                        </button>
+                      ))}
                     </div>
-                    <span className="text-xs font-bold text-slate-800">Reply to conversation</span>
                   </div>
 
-                  {/* Rich Text Toolbar Mockup */}
-                  <div className="flex items-center gap-1 border-b border-slate-100 pb-2.5 overflow-x-auto text-slate-500 text-xs">
-                    <button type="button" className="p-1.5 hover:bg-slate-100 rounded font-bold"><Bold className="w-3.5 h-3.5" /></button>
-                    <button type="button" className="p-1.5 hover:bg-slate-100 rounded italic"><Italic className="w-3.5 h-3.5" /></button>
-                    <button type="button" className="p-1.5 hover:bg-slate-100 rounded underline"><Underline className="w-3.5 h-3.5" /></button>
-                    <div className="w-[1px] h-4 bg-slate-200 mx-1"></div>
-                    <button type="button" className="p-1.5 hover:bg-slate-100 rounded"><List className="w-3.5 h-3.5" /></button>
-                    <button type="button" className="p-1.5 hover:bg-slate-100 rounded"><LinkIcon className="w-3.5 h-3.5" /></button>
-                    <button type="button" className="p-1.5 hover:bg-slate-100 rounded"><ImageIcon className="w-3.5 h-3.5" /></button>
-                    <div className="w-[1px] h-4 bg-slate-200 mx-1"></div>
-                    <button type="button" className="p-1.5 hover:bg-slate-100 rounded"><Maximize2 className="w-3.5 h-3.5" /></button>
+                  {/* 3. Priority Selection */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      Urgency / Priority
+                    </label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        { id: "LOW", label: "Low", color: "text-slate-600" },
+                        { id: "MEDIUM", label: "Medium", color: "text-blue-600" },
+                        { id: "HIGH", label: "High", color: "text-amber-600" },
+                        { id: "URGENT", label: "Urgent", color: "text-rose-600" },
+                      ].map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => setCreatePriority(p.id as Priority)}
+                          className={`py-2 text-center rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                            createPriority === p.id
+                              ? "border-slate-900 bg-slate-900 text-white shadow-2xs"
+                              : "border-slate-200 bg-slate-50 hover:bg-slate-100 " + p.color
+                          }`}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  <form onSubmit={handleSendReply} className="space-y-4">
+                  {/* 4. Issue Description */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Detailed Description <span className="text-rose-500">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleAiTriage}
+                        disabled={aiAnalyzing}
+                        className="text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-full flex items-center gap-1 transition-colors cursor-pointer"
+                      >
+                        <Sparkles className="w-3 h-3 text-emerald-600" />
+                        <span>{aiAnalyzing ? "Analyzing with AI..." : "AI Auto-Triage"}</span>
+                      </button>
+                    </div>
+
                     <textarea
                       rows={5}
-                      value={commentMessage}
-                      onChange={(e) => setCommentMessage(e.target.value)}
-                      placeholder="Type something to reply to support agent..."
-                      className="w-full text-xs md:text-sm text-slate-800 p-3 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-sans leading-relaxed"
+                      placeholder="Please provide full details about the issue you are facing, steps to reproduce, or any relevant order numbers..."
+                      value={createDescription}
+                      onChange={(e) => setCreateDescription(e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-sans leading-relaxed"
+                      required
                     />
 
-                    {/* Bottom Action Bar */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-                      <div className="flex items-center gap-2 text-xs text-slate-400">
-                        <Paperclip className="w-4 h-4 text-slate-400 cursor-pointer hover:text-slate-600" />
-                        <span>&lt; 15 MB (Attachments permitted)</span>
+                    {aiSuccess && (
+                      <p className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        <span>AI successfully classified category as {createCategory} and priority as {createPriority}!</span>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={creatingTicket}
+                      className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 hover:shadow-xl transition-all cursor-pointer"
+                    >
+                      {creatingTicket ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Routing ticket to support queue...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Submit Ticket to Support Team</span>
+                          <Send className="w-3.5 h-3.5" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              /* ======================================================== */
+              /* VIEW MODE 2: TICKET STATUS & CONVERSATION TRACKING PANEL */
+              /* ======================================================== */
+              activeTicket ? (
+                <>
+                  {/* Top Bar: Ticket Switcher & Back to Create Button */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs">
+                    {/* My Tickets Horizontal Switcher */}
+                    <div className="flex items-center gap-2 overflow-x-auto py-1">
+                      <span className="text-[11px] font-bold text-slate-400 shrink-0 uppercase tracking-wider">
+                        My Tickets ({customerTickets.length}):
+                      </span>
+                      {customerTickets.map((t) => (
+                        <button
+                          key={t.id}
+                          onClick={() => setSelectedTicketId(t.id)}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer ${
+                            t.id === activeTicket?.id
+                              ? "bg-emerald-600 text-white shadow-2xs"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
+                        >
+                          #TKT-{t.id.slice(0, 6)}: {t.title.slice(0, 20)}...
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Back to Form Button */}
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("CREATE")}
+                      className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>+ New Ticket</span>
+                    </button>
+                  </div>
+
+                  {/* Clean Ticket Header & Action Buttons */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/60">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono font-bold text-slate-500">
+                          #TKT-{activeTicket.id.slice(0, 6)}
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">
+                          {activeTicket.category}
+                        </span>
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                            activeTicket.status === "RESOLVED"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : activeTicket.status === "IN_PROGRESS"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}
+                        >
+                          {activeTicket.status}
+                        </span>
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                            activeTicket.priority === "URGENT" || activeTicket.priority === "HIGH"
+                              ? "bg-rose-100 text-rose-700"
+                              : "bg-slate-100 text-slate-600"
+                          }`}
+                        >
+                          {activeTicket.priority} Priority
+                        </span>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setCommentMessage("")}
-                          className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-full border border-slate-200 transition-colors"
-                        >
-                          Cancel
-                        </button>
+                      <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
+                        {activeTicket.title}
+                      </h1>
+                    </div>
 
-                        <button
-                          type="submit"
-                          disabled={submitting || !commentMessage.trim()}
-                          className="px-6 py-2 bg-[#22C55E] hover:bg-emerald-600 text-white text-xs font-bold rounded-full shadow-sm shadow-emerald-500/20 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
-                        >
-                          {submitting ? (
-                            <span>Posting...</span>
-                          ) : (
-                            <>
-                              <Send className="w-3 h-3" />
-                              <span>Reply</span>
-                            </>
-                          )}
-                        </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <a
+                        href="#reply-box"
+                        className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                      >
+                        <ReplyIcon className="w-3.5 h-3.5" />
+                        <span>Reply</span>
+                      </a>
+                      <button
+                        onClick={() => onRefreshTicket(activeTicket.id)}
+                        className="px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Refresh</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* ORIGINAL TICKET ISSUE CARD */}
+                  <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                          {activeTicket.customer?.name?.slice(0, 2).toUpperCase() || "CU"}
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                            <span>{activeTicket.customer?.name || "Customer"}</span>
+                            <span className="text-[10px] font-normal text-slate-400">Created request</span>
+                          </div>
+                          <div className="text-[11px] text-slate-400 mt-0.5">
+                            {new Date(activeTicket.createdAt).toLocaleDateString("en-US", {
+                              weekday: "short",
+                              day: "2-digit",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </div>
+                        </div>
+                      </div>
+
+                      <span
+                        className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                          activeTicket.priority === "URGENT" || activeTicket.priority === "HIGH"
+                            ? "bg-rose-50 text-rose-600 border border-rose-200"
+                            : "bg-blue-50 text-blue-600 border border-blue-200"
+                        }`}
+                      >
+                        {activeTicket.priority} Priority
+                      </span>
+                    </div>
+
+                    <p className="text-xs md:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap font-sans">
+                      {activeTicket.description}
+                    </p>
+
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                      <span>Submitted by {activeTicket.customer?.name || "Customer"}</span>
+                      <span className="font-mono text-[11px] bg-slate-100 px-2 py-0.5 rounded">Initial Issue Description</span>
+                    </div>
+                  </div>
+
+                  {/* CONVERSATION TIMELINE REPLIES */}
+                  {activeTicket.comments && activeTicket.comments.length > 0 && (
+                    <div className="space-y-4">
+                      {activeTicket.comments.map((comment) => {
+                        const isStaff = comment.user?.role !== "CUSTOMER";
+                        return (
+                          <div
+                            key={comment.id}
+                            className={`rounded-2xl border p-6 shadow-2xs space-y-3 ${
+                              isStaff
+                                ? "bg-emerald-50/40 border-emerald-200/80"
+                                : "bg-white border-slate-200/90"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className={`w-9 h-9 rounded-full text-white font-bold text-xs flex items-center justify-center shrink-0 ${
+                                    isStaff ? "bg-emerald-600" : "bg-slate-700"
+                                  }`}
+                                >
+                                  {comment.user?.name ? comment.user.name.slice(0, 2).toUpperCase() : "AG"}
+                                </div>
+                                <div>
+                                  <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                                    <span>{comment.user?.name || "Support Team"}</span>
+                                    {isStaff ? (
+                                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.2 rounded-full border border-emerald-200">
+                                        Support Staff
+                                      </span>
+                                    ) : (
+                                      <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.2 rounded-full">
+                                        Customer
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-[11px] text-slate-400 mt-0.5">
+                                    {new Date(comment.createdAt).toLocaleDateString("en-US", {
+                                      weekday: "short",
+                                      day: "2-digit",
+                                      month: "short",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <p className="text-xs md:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                              {comment.message}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* CUSTOMER REPLY FORM */}
+                  <div id="reply-box" className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                        {currentUser?.name ? currentUser.name.slice(0, 2).toUpperCase() : "CU"}
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900">Reply to conversation</div>
+                        <div className="text-[11px] text-slate-400">Your message will alert the assigned agent</div>
                       </div>
                     </div>
-                  </form>
+
+                    <form onSubmit={handleSendReply} className="space-y-3">
+                      <textarea
+                        rows={4}
+                        placeholder="Type your message, follow-up information, or verification details..."
+                        value={commentMessage}
+                        onChange={(e) => setCommentMessage(e.target.value)}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-sans leading-relaxed"
+                        required
+                      />
+
+                      <div className="flex items-center justify-between gap-3 pt-1">
+                        <div className="text-xs text-slate-400 flex items-center gap-1.5">
+                          <Paperclip className="w-4 h-4 text-slate-400" />
+                          <span>Attachments permitted (&lt; 15 MB)</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setCommentMessage("")}
+                            className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-full border border-slate-200 transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+
+                          <button
+                            type="submit"
+                            disabled={submitting || !commentMessage.trim()}
+                            className="px-6 py-2 bg-[#22C55E] hover:bg-emerald-600 text-white text-xs font-bold rounded-full shadow-sm shadow-emerald-500/20 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                          >
+                            {submitting ? (
+                              <span>Posting...</span>
+                            ) : (
+                              <>
+                                <Send className="w-3 h-3" />
+                                <span>Reply</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </>
+              ) : (
+                <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
+                  <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto" />
+                  <h3 className="text-base font-bold text-slate-900">No Active Support Tickets</h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    You do not have any open tickets right now. Need assistance? Click below to submit your request.
+                  </p>
+                  <button
+                    onClick={() => setViewMode("CREATE")}
+                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold inline-flex items-center gap-1.5 mt-2 transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Create Your First Ticket</span>
+                  </button>
                 </div>
-              </>
-            ) : (
-              <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
-                <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto" />
-                <h3 className="text-base font-bold text-slate-900">No Active Support Tickets</h3>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  You do not have any open tickets right now. Need assistance? Click below to submit your request.
-                </p>
-                <button
-                  onClick={onOpenCreate}
-                  className="px-4 py-2 bg-emerald-600 text-white rounded-full text-xs font-bold inline-flex items-center gap-1.5 mt-2"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Create Your First Ticket</span>
-                </button>
-              </div>
+              )
             )}
           </div>
         </main>
 
-        {/* 4. RIGHT SIDEBAR WIDGET - Commented out per user request because no dedicated website/app widgets are needed
+        {/* 4. RIGHT SIDEBAR WIDGET - Commented out per user request */}
+        {/*
         <aside className="w-72 bg-white border-l border-slate-200/90 p-6 space-y-6 hidden lg:block overflow-y-auto">
-          <div className="space-y-3 pb-5 border-b border-slate-100 text-xs">
-            <div className="flex items-center gap-2 text-slate-600">
-              <Lock className="w-4 h-4 text-slate-400" />
-              <span>Status:</span>
-              <strong className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold">
-                {activeTicket?.status || "Open"}
-              </strong>
-            </div>
-
-            <div className="flex items-center gap-2 text-slate-600">
-              <Pin className="w-4 h-4 text-slate-400" />
-              <span>Category:</span>
-              <strong className="text-slate-800">{activeTicket?.category || "General"}</strong>
-            </div>
-          </div>
-
-          <div className="space-y-2 pb-5 border-b border-slate-100">
-            <div className="text-xs font-bold text-slate-800">
-              Notify me on reply?
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] text-slate-400">Instant email alerts</span>
-              <button
-                type="button"
-                onClick={() => setNotifyToggle(!notifyToggle)}
-                className={`w-10 h-5 rounded-full p-0.5 transition-colors ${
-                  notifyToggle ? "bg-emerald-500" : "bg-slate-300"
-                }`}
-              >
-                <div
-                  className={`w-4 h-4 rounded-full bg-white transition-transform ${
-                    notifyToggle ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-3 pb-5 border-b border-slate-100">
-            <div className="text-xs font-bold text-slate-800">
-              Participating in this Ticket:
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-2">
-                <div className="w-8 h-8 rounded-full ring-2 ring-white bg-slate-800 text-white text-[10px] font-bold flex items-center justify-center">
-                  AR
-                </div>
-                <div className="w-8 h-8 rounded-full ring-2 ring-white bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">
-                  RA
-                </div>
-              </div>
-              <span className="text-[11px] text-slate-500">2 People Active</span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <div className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-              Your Support Tickets ({customerTickets.length})
-            </div>
-            <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-              {customerTickets.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setSelectedTicketId(t.id)}
-                  className={`w-full text-left p-3 rounded-xl border text-xs transition-all ${
-                    t.id === activeTicket?.id
-                      ? "bg-emerald-50 border-emerald-300 ring-2 ring-emerald-500/10 font-medium"
-                      : "bg-slate-50/70 hover:bg-slate-100 border-slate-200/80 text-slate-600"
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
-                    <span>#TKT-{t.id.slice(0, 6)}</span>
-                    <span
-                      className={`px-1.5 py-0.2 rounded font-bold uppercase ${
-                        t.status === "CUSTOMER_REPLIED"
-                          ? "bg-purple-100 text-purple-700"
-                          : t.status === "RESOLVED"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-blue-100 text-blue-700"
-                      }`}
-                    >
-                      {t.status}
-                    </span>
-                  </div>
-                  <div className="font-semibold text-slate-800 line-clamp-1">{t.title}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="pt-2">
-            <button
-              onClick={onSwitchToAdmin}
-              className="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
-            >
-              <Shield className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Switch to Staff ERP</span>
-            </button>
-          </div>
+          ...
         </aside>
         */}
       </div>
 
       {/* 5. MINIMALIST FOOTER */}
       <footer className="bg-white border-t border-slate-200/80 py-4 px-8 flex items-center justify-center text-xs text-slate-400">
-        {/* Website Links - Commented out per user request
-        <div className="flex items-center gap-4">
-          <a href="#" className="hover:text-slate-600">Careers</a>
-          <a href="#" className="hover:text-slate-600">Support</a>
-          <a href="#" className="hover:text-slate-600">Legal &amp; Privacy Policy</a>
-        </div>
-        */}
         <div className="text-center text-slate-400 text-xs">
           Support Ticket Management — Customer Support Portal
         </div>

@@ -284,6 +284,7 @@ export function App() {
           onSwitchUser={handleSwitchUser}
           onLogout={handleLogout}
           onRefreshTicket={handleRefreshSingleTicket}
+          onTicketCreated={() => loadTickets()}
         />
 
         {/* Global Modals */}
