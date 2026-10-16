@@ -13,6 +13,7 @@ import { LoginModal } from "./components/LoginModal";
 import { TicketsView } from "./components/views/TicketsView";
 import { CustomersView } from "./components/views/CustomersView";
 import { SettingsView } from "./components/views/SettingsView";
+import { CustomerPortalView } from "./components/views/CustomerPortalView";
 import { Calendar } from "lucide-react";
 
 export function App() {
@@ -21,12 +22,48 @@ export function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("Dashboard");
 
+  // Route state: "/" -> Customer Portal; "/admin" or "/support-agent" -> Staff ERP
+  const [currentRoute, setCurrentRoute] = useState<"CUSTOMER" | "ADMIN">(() => {
+    if (typeof window !== "undefined") {
+      const p = window.location.pathname.toLowerCase();
+      if (p.startsWith("/admin") || p.startsWith("/support-agent") || p.startsWith("/agent")) {
+        return "ADMIN";
+      }
+    }
+    return "CUSTOMER";
+  });
+
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+
+  // Sync route on popstate (browser back / forward buttons)
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const p = window.location.pathname.toLowerCase();
+      if (p.startsWith("/admin") || p.startsWith("/support-agent") || p.startsWith("/agent")) {
+        setCurrentRoute("ADMIN");
+      } else {
+        setCurrentRoute("CUSTOMER");
+      }
+    };
+
+    window.addEventListener("popstate", handleLocationChange);
+    return () => window.removeEventListener("popstate", handleLocationChange);
+  }, []);
+
+  const navigateToAdmin = () => {
+    window.history.pushState({}, "", "/admin");
+    setCurrentRoute("ADMIN");
+  };
+
+  const navigateToCustomer = () => {
+    window.history.pushState({}, "", "/");
+    setCurrentRoute("CUSTOMER");
+  };
 
   useEffect(() => {
     const initAuth = async () => {
@@ -49,8 +86,11 @@ export function App() {
   }, []);
 
   const autoLoginDefault = async () => {
+    const p = window.location.pathname.toLowerCase();
+    const isAdmin = p.startsWith("/admin") || p.startsWith("/support-agent") || p.startsWith("/agent");
+    const defaultEmail = isAdmin ? "admin@resolvedesk.com" : "arif@example.com";
     try {
-      const { user, token } = await api.login("admin@resolvedesk.com", "password123");
+      const { user, token } = await api.login(defaultEmail, "password123");
       localStorage.setItem("resolvedesk_token", token);
       setCurrentUser(user);
       loadStaff();
@@ -156,6 +196,48 @@ export function App() {
 
   const firstName = currentUser?.name ? currentUser.name.split(" ")[0] : "Rafsan";
 
+  // 1. If at root route "/", render the dedicated Customer Support Portal UI matching user reference
+  if (currentRoute === "CUSTOMER") {
+    return (
+      <div className="min-h-screen bg-[#F8F9FA] text-slate-800 font-['Plus_Jakarta_Sans',sans-serif]">
+        <CustomerPortalView
+          currentUser={currentUser}
+          tickets={tickets}
+          onOpenCreate={() => setIsCreateOpen(true)}
+          onSwitchToAdmin={navigateToAdmin}
+          onSwitchUser={handleSwitchUser}
+          onLogout={handleLogout}
+          onRefreshTicket={handleRefreshSingleTicket}
+        />
+
+        {/* Global Modals */}
+        <CreateTicketModal
+          isOpen={isCreateOpen}
+          onClose={() => setIsCreateOpen(false)}
+          onTicketCreated={() => loadTickets()}
+        />
+
+        <TicketDetailModal
+          ticket={selectedTicket}
+          currentUser={currentUser}
+          staffList={staffList}
+          onClose={() => setSelectedTicket(null)}
+          onRefreshTicket={handleRefreshSingleTicket}
+        />
+
+        <LoginModal
+          isOpen={isLoginOpen}
+          onSuccess={(user) => {
+            setCurrentUser(user);
+            setIsLoginOpen(false);
+            loadStaff();
+          }}
+        />
+      </div>
+    );
+  }
+
+  // 2. If at "/admin" or "/support-agent", render the Staff ERP Dashboard
   return (
     <div className="flex h-screen bg-[#F4F7FB] text-slate-800 font-['Plus_Jakarta_Sans',sans-serif] overflow-hidden">
       {/* Sidebar with user's ERP signature design & ticket management navigation */}
@@ -173,13 +255,14 @@ export function App() {
       />
 
       <div className="flex-1 flex flex-col h-screen overflow-y-auto min-w-0">
-        {/* Top Header with dynamic notification feed and persona switcher */}
+        {/* Top Header with dynamic notification feed, persona switcher, and Customer Portal link */}
         <TopHeader
           currentUser={currentUser}
           tickets={tickets}
           onSwitchUser={handleSwitchUser}
           onLogout={handleLogout}
           onSelectTicket={handleSelectTicket}
+          onSwitchToCustomerPortal={navigateToCustomer}
         />
 
         <main className="p-7 max-w-[1700px] w-full mx-auto">

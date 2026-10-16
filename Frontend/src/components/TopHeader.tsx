@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Clock,
+  ExternalLink,
 } from "lucide-react";
 import { User, Ticket } from "../types";
 
@@ -31,6 +32,7 @@ interface TopHeaderProps {
   onSwitchUser: (email: string) => void;
   onLogout: () => void;
   onSelectTicket?: (ticket: Ticket) => void;
+  onSwitchToCustomerPortal?: () => void;
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
@@ -41,6 +43,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   onSwitchUser,
   onLogout,
   onSelectTicket,
+  onSwitchToCustomerPortal,
 }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifMenuOpen, setNotifMenuOpen] = useState(false);
@@ -147,8 +150,21 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </div>
       </div>
 
-      {/* Right Controls: Role Capsule & Dynamic Notification Bell */}
+      {/* Right Controls: Role Capsule, Customer Portal Switcher & Dynamic Notification Bell */}
       <div className="flex items-center gap-3 shrink-0">
+        {/* Switch to Customer Portal Button */}
+        {onSwitchToCustomerPortal && (
+          <button
+            onClick={onSwitchToCustomerPortal}
+            className="border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-semibold text-emerald-400 transition-colors shadow-2xs cursor-pointer"
+            title="Switch to Customer Support Portal (/)"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Customer Portal (/)</span>
+            <span className="sm:hidden">Portal (/)</span>
+          </button>
+        )}
+
         {/* Role Capsule with Persona Switcher Dropdown */}
         <div className="relative">
           <button
