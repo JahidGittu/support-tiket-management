@@ -10,8 +10,6 @@ import {
   ArrowRight,
   Loader2,
   AlertCircle,
-  CheckCircle2,
-  Building2,
   Headphones,
   LogIn,
   UserPlus,
@@ -90,11 +88,8 @@ export const AuthView: React.FC<AuthViewProps> = ({
   return (
     <div className="min-h-screen bg-[#F4F7FB] flex flex-col justify-center items-center p-4 font-['Plus_Jakarta_Sans',sans-serif]">
       <div className="max-w-md w-full">
-        {/* Brand Logo & Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#1E222D] text-[#00BFA5] border border-slate-700 shadow-lg mb-3">
-            <Building2 className="w-7 h-7 stroke-[2.2]" />
-          </div>
+        {/* Brand Header */}
+        <div className="text-center mb-6">
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
             SUPPORT TICKET <span className="text-emerald-600 font-extrabold">MANAGEMENT</span>
           </h1>
@@ -344,11 +339,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
           </div>
         </div>
 
-        {/* Footer Info */}
-        <div className="text-center mt-6 text-[11px] text-slate-400 space-y-1">
-          <p>Support Ticket Management — Protected by JWT Authentication & Neon PostgreSQL</p>
-          <p>© 2026 JahidGittu / NT Tech Innovation Assessment</p>
-        </div>
       </div>
     </div>
   );
