@@ -330,81 +330,86 @@ export function App() {
             <SettingsView />
           ) : (
             /* Default: Modern Support Ticket Dashboard Overview */
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-7 items-start">
-              <div className="xl:col-span-8 space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                      Good morning, {firstName} <span className="inline-block">👋</span>
-                    </h1>
-                    <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                      Here's what's happening with your support today.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2.5">
-                    <div className="bg-white border border-slate-200/90 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-600 flex items-center gap-2 shadow-2xs">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Wed, 16 Oct 2026</span>
-                    </div>
-
-                    <div className="bg-emerald-50 border border-emerald-200/70 text-emerald-700 rounded-xl px-3 py-1.5 text-xs font-bold flex items-center gap-2 shadow-2xs">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                      <span>System Online</span>
-                    </div>
-                  </div>
+            <div className="space-y-7">
+              {/* 1. Header greeting & system status bar (Full width) */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                    Good morning, {firstName} <span className="inline-block">👋</span>
+                  </h1>
+                  <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                    Here's what's happening with your support today.
+                  </p>
                 </div>
 
-                <MetricCards
-                  totalCount={counts.all}
-                  openCount={counts.open}
-                  resolvedCount={counts.resolved}
-                  avgResponseTime="2h 14m"
-                />
+                <div className="flex items-center gap-2.5">
+                  <div className="bg-white border border-slate-200/90 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-600 flex items-center gap-2 shadow-2xs">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Wed, 16 Oct 2026</span>
+                  </div>
 
-                {/* Smart Queue & Capacity Manager Bar */}
-                <SmartQueueWidget
-                  queueTickets={queueTickets}
-                  staffLoads={staffLoads}
-                  activityLogs={activityLogs}
-                  onAssignFromQueue={handleAssignFromQueue}
-                  onToggleAvailability={handleToggleAvailability}
-                  onRefresh={loadQueueData}
-                  isLoading={isLoadingQueue}
-                />
-
-                <TicketsTable
-                  tickets={tickets}
-                  statusFilter={statusFilter}
-                  setStatusFilter={setStatusFilter}
-                  onSelectTicket={handleSelectTicket}
-                  onOpenCreate={() => setIsCreateOpen(true)}
-                  counts={counts}
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                />
-
-                <AiHelpBanner onOpenAi={() => setIsCreateOpen(true)} />
+                  <div className="bg-emerald-50 border border-emerald-200/70 text-emerald-700 rounded-xl px-3 py-1.5 text-xs font-bold flex items-center gap-2 shadow-2xs">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>System Online</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="xl:col-span-4 space-y-6">
-                <RightPanel
-                  onOpenCreate={() => setIsCreateOpen(true)}
-                  onOpenAiSuggestion={() => setIsCreateOpen(true)}
-                  statusCounts={{
-                    open: counts.open,
-                    inProgress: counts.inProgress,
-                    resolved: counts.resolved,
-                    closed: counts.closed,
-                    total: counts.all,
-                  }}
-                  priorityCounts={{
-                    high: priorityCounts.high,
-                    medium: priorityCounts.medium,
-                    low: priorityCounts.low,
-                    total: counts.all,
-                  }}
-                />
+              {/* 2. Top Metric Cards (Full width 4-card grid) */}
+              <MetricCards
+                totalCount={counts.all}
+                openCount={counts.open}
+                resolvedCount={counts.resolved}
+                avgResponseTime="2h 14m"
+              />
+
+              {/* 3. Smart Queue & Staff Bandwidth Manager (FULL WIDTH MISSION CONTROL HERO) */}
+              <SmartQueueWidget
+                queueTickets={queueTickets}
+                staffLoads={staffLoads}
+                activityLogs={activityLogs}
+                onAssignFromQueue={handleAssignFromQueue}
+                onToggleAvailability={handleToggleAvailability}
+                onRefresh={loadQueueData}
+                isLoading={isLoadingQueue}
+              />
+
+              {/* 4. Operational Grid: Left Table (8 Cols) + Right Analytics Panel (4 Cols) */}
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-7 items-start">
+                <div className="xl:col-span-8 space-y-6">
+                  <TicketsTable
+                    tickets={tickets}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                    onSelectTicket={handleSelectTicket}
+                    onOpenCreate={() => setIsCreateOpen(true)}
+                    counts={counts}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                  />
+
+                  <AiHelpBanner onOpenAi={() => setIsCreateOpen(true)} />
+                </div>
+
+                <div className="xl:col-span-4 space-y-6">
+                  <RightPanel
+                    onOpenCreate={() => setIsCreateOpen(true)}
+                    onOpenAiSuggestion={() => setIsCreateOpen(true)}
+                    statusCounts={{
+                      open: counts.open,
+                      inProgress: counts.inProgress,
+                      resolved: counts.resolved,
+                      closed: counts.closed,
+                      total: counts.all,
+                    }}
+                    priorityCounts={{
+                      high: priorityCounts.high,
+                      medium: priorityCounts.medium,
+                      low: priorityCounts.low,
+                      total: counts.all,
+                    }}
+                  />
+                </div>
               </div>
             </div>
           )}
