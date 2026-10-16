@@ -1,6 +1,6 @@
 import React from "react";
 import { Ticket, TicketStatus, Priority } from "../types";
-import { Plus, ArrowRight, MoreVertical, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { Plus, ArrowRight, MoreVertical, ChevronLeft, ChevronRight, Search, Clock } from "lucide-react";
 
 interface TicketsTableProps {
   tickets: Ticket[];
@@ -13,6 +13,7 @@ interface TicketsTableProps {
     open: number;
     inProgress: number;
     customerReplied?: number;
+    waitingQueue?: number;
     resolved: number;
     closed: number;
   };
@@ -26,12 +27,13 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
   setStatusFilter,
   onSelectTicket,
   onOpenCreate,
-  counts = { all: 124, open: 48, inProgress: 32, customerReplied: 6, resolved: 36, closed: 8 },
+  counts = { all: 124, open: 48, inProgress: 32, customerReplied: 6, waitingQueue: 3, resolved: 36, closed: 8 },
   searchQuery,
   setSearchQuery,
 }) => {
   const tabs = [
     { id: "ALL", label: `All (${counts.all})` },
+    { id: "WAITING_QUEUE", label: `⏳ Waiting Queue (${counts.waitingQueue || 0})` },
     { id: "OPEN", label: `Open (${counts.open})` },
     { id: "IN_PROGRESS", label: `In Progress (${counts.inProgress})` },
     { id: "CUSTOMER_REPLIED", label: `Customer Replied (${counts.customerReplied || 0})` },
@@ -172,6 +174,7 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
               <th className="pb-3.5 pl-2 font-medium">ID</th>
               <th className="pb-3.5 font-medium">Subject</th>
               <th className="pb-3.5 font-medium">Customer</th>
+              <th className="pb-3.5 font-medium">Assigned Staff</th>
               <th className="pb-3.5 font-medium">Priority</th>
               <th className="pb-3.5 font-medium">Status</th>
               <th className="pb-3.5 font-medium pr-4">Updated</th>
@@ -179,7 +182,14 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-xs">
-            {tickets.map((ticket, index) => {
+            {tickets
+              .filter((t) => {
+                if (statusFilter === "WAITING_QUEUE") {
+                  return !t.assignedToId && (t.status === "OPEN" || t.status === "CUSTOMER_REPLIED");
+                }
+                return true;
+              })
+              .map((ticket, index) => {
               const customerName = ticket.customer?.name || "Customer";
               const avatar =
                 customerAvatars[customerName] ||
@@ -215,6 +225,22 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
                         </div>
                       </div>
                     </div>
+                  </td>
+
+                  <td className="py-3.5 pr-4">
+                    {ticket.assignedTo ? (
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-[9px]">
+                          {ticket.assignedTo.name?.[0] || "A"}
+                        </div>
+                        <span className="font-semibold text-slate-700 text-xs">{ticket.assignedTo.name}</span>
+                      </div>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                        <Clock className="w-2.5 h-2.5" />
+                        <span>Waiting Queue</span>
+                      </span>
+                    )}
                   </td>
 
                   <td className="py-3.5 pr-4">

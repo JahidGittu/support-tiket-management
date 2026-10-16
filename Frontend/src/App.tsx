@@ -14,6 +14,8 @@ import { TicketsView } from "./components/views/TicketsView";
 import { CustomersView } from "./components/views/CustomersView";
 import { SettingsView } from "./components/views/SettingsView";
 import { CustomerPortalView } from "./components/views/CustomerPortalView";
+import { SmartQueueWidget } from "./components/SmartQueueWidget";
+import { StaffLoad, ActivityLog } from "./types";
 import { Calendar } from "lucide-react";
 
 export function App() {
@@ -39,6 +41,48 @@ export function App() {
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+
+  // Queue and staff load states
+  const [queueTickets, setQueueTickets] = useState<Ticket[]>([]);
+  const [staffLoads, setStaffLoads] = useState<StaffLoad[]>([]);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [isLoadingQueue, setIsLoadingQueue] = useState(false);
+
+  const loadQueueData = async () => {
+    if (!currentUser) return;
+    setIsLoadingQueue(true);
+    try {
+      const [queue, loads, logs] = await Promise.all([
+        api.getWaitingQueue(),
+        api.getStaffLoadSummary(),
+        api.getActivityLogs(),
+      ]);
+      setQueueTickets(queue);
+      setStaffLoads(loads);
+      setActivityLogs(logs);
+    } catch (err) {
+      console.warn("Could not load queue data:", err);
+    } finally {
+      setIsLoadingQueue(false);
+    }
+  };
+
+  const handleAssignFromQueue = async () => {
+    try {
+      const res = await api.assignFromQueue();
+      await Promise.all([loadTickets(), loadQueueData()]);
+      if (!res.success) {
+        alert(res.message);
+      }
+    } catch (err: any) {
+      alert(err.message || "Failed to auto-assign from queue");
+    }
+  };
+
+  const handleToggleAvailability = async (staffId: string, status: "AVAILABLE" | "ON_LEAVE") => {
+    await api.toggleStaffAvailability(staffId, status);
+    await loadQueueData();
+  };
 
   // Sync route on popstate (browser back / forward buttons)
   useEffect(() => {
@@ -123,6 +167,7 @@ export function App() {
 
   useEffect(() => {
     loadTickets();
+    loadQueueData();
   }, [currentUser, statusFilter, searchQuery]);
 
   const handleSwitchUser = async (email: string) => {
@@ -131,6 +176,7 @@ export function App() {
       localStorage.setItem("resolvedesk_token", token);
       setCurrentUser(user);
       loadStaff();
+      loadQueueData();
     } catch (err) {
       console.error("Failed to switch persona", err);
     }
@@ -140,6 +186,7 @@ export function App() {
     localStorage.removeItem("resolvedesk_token");
     setCurrentUser(null);
     setTickets([]);
+    setQueueTickets([]);
     setIsLoginOpen(true);
   };
 
@@ -156,7 +203,7 @@ export function App() {
     try {
       const refreshed = await api.getTicketById(ticketId);
       setSelectedTicket(refreshed);
-      loadTickets();
+      await Promise.all([loadTickets(), loadQueueData()]);
     } catch (err) {
       console.error("Failed to refresh ticket", err);
     }
@@ -170,16 +217,18 @@ export function App() {
     const rawReplied = tickets.filter((t) => t.status === "CUSTOMER_REPLIED").length;
     const rawResolved = tickets.filter((t) => t.status === "RESOLVED").length;
     const rawClosed = tickets.filter((t) => t.status === "CLOSED").length;
+    const rawWaiting = queueTickets.length;
 
     return {
       all: Math.max(124, rawAll),
       open: rawOpen > 0 ? rawOpen : 48,
       inProgress: rawInProg > 0 ? rawInProg : 32,
       customerReplied: rawReplied > 0 ? rawReplied : 6,
+      waitingQueue: rawWaiting > 0 ? rawWaiting : 3,
       resolved: rawResolved > 0 ? rawResolved : 36,
       closed: rawClosed > 0 ? rawClosed : 8,
     };
-  }, [tickets]);
+  }, [tickets, queueTickets]);
 
   const priorityCounts = useMemo(() => {
     const rawHigh = tickets.filter((t) => t.priority === "HIGH" || t.priority === "URGENT").length;
@@ -221,6 +270,7 @@ export function App() {
           ticket={selectedTicket}
           currentUser={currentUser}
           staffList={staffList}
+          staffLoads={staffLoads}
           onClose={() => setSelectedTicket(null)}
           onRefreshTicket={handleRefreshSingleTicket}
         />
@@ -312,6 +362,17 @@ export function App() {
                   avgResponseTime="2h 14m"
                 />
 
+                {/* Smart Queue & Capacity Manager Bar */}
+                <SmartQueueWidget
+                  queueTickets={queueTickets}
+                  staffLoads={staffLoads}
+                  activityLogs={activityLogs}
+                  onAssignFromQueue={handleAssignFromQueue}
+                  onToggleAvailability={handleToggleAvailability}
+                  onRefresh={loadQueueData}
+                  isLoading={isLoadingQueue}
+                />
+
                 <TicketsTable
                   tickets={tickets}
                   statusFilter={statusFilter}
@@ -361,6 +422,7 @@ export function App() {
         ticket={selectedTicket}
         currentUser={currentUser}
         staffList={staffList}
+        staffLoads={staffLoads}
         onClose={() => setSelectedTicket(null)}
         onRefreshTicket={handleRefreshSingleTicket}
       />

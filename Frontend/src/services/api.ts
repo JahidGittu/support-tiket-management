@@ -78,4 +78,52 @@ export const api = {
     const res = await apiClient.post("/ai/classify", { title, description });
     return res.data.data;
   },
+
+  getWaitingQueue: async (): Promise<Ticket[]> => {
+    const res = await apiClient.get("/queue");
+    return res.data.data;
+  },
+
+  assignFromQueue: async (): Promise<{ success: boolean; message: string; ticket?: Ticket; assignedStaff?: any }> => {
+    const res = await apiClient.post("/queue/assign-next");
+    return res.data;
+  },
+
+  getStaffLoadSummary: async (): Promise<any[]> => {
+    const res = await apiClient.get("/queue/staff-load");
+    return res.data.data;
+  },
+
+  getActivityLogs: async (): Promise<any[]> => {
+    const res = await apiClient.get("/queue/activity-logs");
+    return res.data.data;
+  },
+
+  toggleStaffAvailability: async (staffId: string, status: "AVAILABLE" | "ON_LEAVE" | "BUSY"): Promise<any> => {
+    const res = await apiClient.patch(`/queue/staff/${staffId}/availability`, { status });
+    return res.data.data;
+  },
+
+  assignTicketWithValidation: async (
+    ticketId: string,
+    staffId: string | null,
+    forceOverride?: boolean
+  ): Promise<{ success: boolean; data?: Ticket; conflict?: boolean; message?: string }> => {
+    try {
+      const res = await apiClient.post(`/queue/tickets/${ticketId}/assign`, {
+        staffId,
+        forceOverride,
+      });
+      return res.data;
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        return {
+          success: false,
+          conflict: true,
+          message: err.response.data?.message || "Staff member capacity exceeded.",
+        };
+      }
+      throw err;
+    }
+  },
 };

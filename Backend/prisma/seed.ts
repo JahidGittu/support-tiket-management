@@ -18,15 +18,45 @@ async function main() {
       email: "admin@resolvedesk.com",
       password: hashedPassword,
       role: "ADMIN",
+      dailyCapacity: 5,
+      availabilityStatus: "AVAILABLE",
+      serviceType: "Escalations & Admin",
     },
   });
 
-  const agent = await prisma.user.create({
+  const agent1 = await prisma.user.create({
     data: {
       name: "Rahat Ahmed",
       email: "agent@resolvedesk.com",
       password: hashedPassword,
       role: "AGENT",
+      dailyCapacity: 5,
+      availabilityStatus: "AVAILABLE",
+      serviceType: "Technical Support",
+    },
+  });
+
+  const agent2 = await prisma.user.create({
+    data: {
+      name: "Farhan Kabir",
+      email: "farhan@resolvedesk.com",
+      password: hashedPassword,
+      role: "AGENT",
+      dailyCapacity: 5,
+      availabilityStatus: "AVAILABLE",
+      serviceType: "Billing Specialist",
+    },
+  });
+
+  const agent3 = await prisma.user.create({
+    data: {
+      name: "Riya Sultana",
+      email: "riya@resolvedesk.com",
+      password: hashedPassword,
+      role: "AGENT",
+      dailyCapacity: 5,
+      availabilityStatus: "AVAILABLE",
+      serviceType: "Account Services",
     },
   });
 
@@ -148,10 +178,16 @@ async function main() {
   ];
 
   const now = new Date();
+  const staffAgents = [agent1, agent2, agent3];
 
-  for (const t of ticketsData) {
+  for (let idx = 0; idx < ticketsData.length; idx++) {
+    const t = ticketsData[idx];
     const customer = createdCustomers[t.customerEmail];
     const ticketCreatedAt = new Date(now.getTime() - t.timeOffsetHours * 3600 * 1000);
+
+    // Leave 3 tickets unassigned so they are in the Waiting Queue!
+    const isWaitingQueue = idx === 0 || idx === 2 || idx === 5; // e.g. Payment not working, Bug in charts, API help
+    const assignedAgent = isWaitingQueue ? null : staffAgents[idx % staffAgents.length];
 
     const ticket = await prisma.ticket.create({
       data: {
@@ -163,7 +199,7 @@ async function main() {
         aiSummary: t.aiSummary,
         aiSuggestedReply: t.aiSuggestedReply,
         customerId: customer.id,
-        assignedToId: t.status !== "OPEN" ? agent.id : null,
+        assignedToId: assignedAgent ? assignedAgent.id : null,
         createdAt: ticketCreatedAt,
         updatedAt: ticketCreatedAt,
       },
@@ -178,11 +214,11 @@ async function main() {
       },
     });
 
-    if (t.status === "IN_PROGRESS" || t.status === "RESOLVED") {
+    if (assignedAgent && (t.status === "IN_PROGRESS" || t.status === "RESOLVED")) {
       await prisma.ticketComment.create({
         data: {
           ticketId: ticket.id,
-          userId: agent.id,
+          userId: assignedAgent.id,
           message: t.aiSuggestedReply,
           createdAt: new Date(ticketCreatedAt.getTime() + 15 * 60 * 1000),
         },
@@ -190,7 +226,36 @@ async function main() {
     }
   }
 
-  console.log("Database seeded successfully with reference UI data!");
+  console.log("Seeding initial Activity Logs...");
+  const sampleLogs = [
+    {
+      action: "QUEUE_ASSIGNED",
+      message: "11:45 AM — Ticket #TKT-1024 auto-assigned from Waiting Queue to Rahat Ahmed.",
+    },
+    {
+      action: "MOVED_TO_QUEUE",
+      message: "12:10 PM — Ticket #TKT-1028 moved to Waiting Queue (Agents at 5/5 capacity).",
+    },
+    {
+      action: "STATUS_CHANGE",
+      message: "12:30 PM — Rahat Ahmed resolved Ticket #TKT-1021 (Capacity freed to 4/5).",
+    },
+    {
+      action: "QUEUE_ASSIGNED",
+      message: "01:15 PM — Ticket #TKT-1029 auto-assigned from Waiting Queue to Riya Sultana.",
+    },
+  ];
+
+  for (const log of sampleLogs) {
+    await prisma.activityLog.create({
+      data: {
+        action: log.action,
+        message: log.message,
+      },
+    });
+  }
+
+  console.log("Database seeded successfully with capacity, queues, and activity logs!");
 }
 
 main()

@@ -8,7 +8,32 @@ export interface User {
   name: string;
   email: string;
   role: Role;
+  dailyCapacity?: number;
+  availabilityStatus?: "AVAILABLE" | "ON_LEAVE" | "BUSY";
+  serviceType?: string;
   createdAt?: string;
+}
+
+export interface StaffLoad {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  serviceType: string;
+  dailyCapacity: number;
+  currentLoad: number;
+  availabilityStatus: "AVAILABLE" | "ON_LEAVE" | "BUSY";
+  isAtCapacity: boolean;
+  statusLabel: "OK" | "Booked";
+}
+
+export interface ActivityLog {
+  id: string;
+  action: string;
+  message: string;
+  ticketId?: string | null;
+  userId?: string | null;
+  createdAt: string;
 }
 
 export interface TicketComment {

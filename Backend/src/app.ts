@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes";
 import ticketRoutes from "./routes/ticketRoutes";
 import aiRoutes from "./routes/aiRoutes";
+import queueRoutes from "./routes/queueRoutes";
 import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
@@ -32,6 +33,7 @@ app.get("/api/v1/health", (req, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/tickets", ticketRoutes);
 app.use("/api/v1/ai", aiRoutes);
+app.use("/api/v1/queue", queueRoutes);
 
 app.use(errorHandler);
 

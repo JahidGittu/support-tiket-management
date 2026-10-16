@@ -35,16 +35,36 @@ enum Category {
   GENERAL
 }
 
+enum AvailabilityStatus {
+  AVAILABLE
+  ON_LEAVE
+  BUSY
+}
+
 model User {
-  id              String          @id @default(uuid())
-  email           String          @unique
-  name            String
-  password        String
-  role            Role            @default(CUSTOMER)
-  createdTickets  Ticket[]        @relation("CustomerTickets")
-  assignedTickets Ticket[]        @relation("AssignedAgentTickets")
-  comments        TicketComment[]
-  createdAt       DateTime        @default(now())
+  id                 String             @id @default(uuid())
+  email              String             @unique
+  name               String
+  password           String
+  role               Role               @default(CUSTOMER)
+  dailyCapacity      Int                @default(5)
+  availabilityStatus AvailabilityStatus @default(AVAILABLE)
+  serviceType        String?            @default("General Support")
+  createdTickets     Ticket[]           @relation("CustomerTickets")
+  assignedTickets    Ticket[]           @relation("AssignedAgentTickets")
+  comments           TicketComment[]
+  createdAt          DateTime           @default(now())
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  action    String
+  message   String
+  ticketId  String?
+  userId    String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model Ticket {

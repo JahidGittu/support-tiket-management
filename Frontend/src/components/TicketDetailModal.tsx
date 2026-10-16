@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Ticket, User, TicketStatus } from "../types";
+import { Ticket, User, TicketStatus, StaffLoad } from "../types";
 import { api } from "../services/api";
 import {
   X,
@@ -9,12 +9,14 @@ import {
   Clock,
   ArrowRight,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 
 interface TicketDetailModalProps {
   ticket: Ticket | null;
   currentUser: User | null;
   staffList: User[];
+  staffLoads?: StaffLoad[];
   onClose: () => void;
   onRefreshTicket: (ticketId: string) => void;
 }
@@ -23,6 +25,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
   ticket,
   currentUser,
   staffList,
+  staffLoads,
   onClose,
   onRefreshTicket,
 }) => {
@@ -31,6 +34,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
   const [sendingComment, setSendingComment] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [assigningAgent, setAssigningAgent] = useState(false);
+  const [conflictAlert, setConflictAlert] = useState<{ message: string; targetStaffId: string } | null>(null);
 
   if (!ticket) return null;
 
@@ -49,12 +53,17 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
     }
   };
 
-  const handleAssignAgent = async (assignedToId: string) => {
+  const handleAssignAgent = async (assignedToId: string, forceOverride: boolean = false) => {
     setAssigningAgent(true);
+    setConflictAlert(null);
     try {
       const targetId = assignedToId === "UNASSIGNED" ? null : assignedToId;
-      await api.assignTicket(ticket.id, targetId);
-      onRefreshTicket(ticket.id);
+      const res = await api.assignTicketWithValidation(ticket.id, targetId, forceOverride);
+      if (res.conflict) {
+        setConflictAlert({ message: res.message || "Capacity exceeded.", targetStaffId: assignedToId });
+      } else {
+        onRefreshTicket(ticket.id);
+      }
     } catch (err) {
       console.error("Failed to assign agent", err);
     } finally {
@@ -142,19 +151,62 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                   <span className="font-semibold text-slate-600">Assign Agent:</span>
                   <select
                     value={ticket.assignedToId || "UNASSIGNED"}
-                    onChange={(e) => handleAssignAgent(e.target.value)}
+                    onChange={(e) => handleAssignAgent(e.target.value, false)}
                     disabled={assigningAgent}
-                    className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 font-medium text-slate-700"
+                    className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 font-medium text-slate-700 cursor-pointer"
                   >
-                    <option value="UNASSIGNED">Unassigned</option>
-                    {staffList.map((staff) => (
-                      <option key={staff.id} value={staff.id}>
-                        {staff.name} ({staff.role})
-                      </option>
-                    ))}
+                    <option value="UNASSIGNED">Unassigned (Waiting Queue)</option>
+                    {staffList.map((staff) => {
+                      const load = staffLoads?.find((s) => s.id === staff.id);
+                      const isFull = load?.isAtCapacity;
+                      const isOnLeave = load?.availabilityStatus === "ON_LEAVE";
+                      const tag = isOnLeave ? "On Leave" : load ? `${load.currentLoad}/${load.dailyCapacity}` : "";
+                      return (
+                        <option key={staff.id} value={staff.id}>
+                          {staff.name} ({staff.role}) {tag ? `[${tag}]` : ""} {isFull ? "⚠️ Full" : ""}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Conflict & Capacity Warning Alert */}
+          {conflictAlert && (
+            <div className="p-4 bg-rose-50 border border-rose-200/90 rounded-2xl text-xs space-y-2.5 animate-in fade-in duration-150">
+              <div className="flex items-center gap-2 text-rose-800 font-bold">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>Capacity Conflict Detected: {conflictAlert.message}</span>
+              </div>
+              <p className="text-rose-700 text-xs leading-relaxed">
+                This staff member has reached their maximum daily capacity (5/5) or is marked on leave.
+                Assigning additional tickets may violate SLA turnaround times.
+              </p>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setConflictAlert(null)}
+                  className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-700 font-bold shadow-2xs transition-colors"
+                >
+                  Pick Another Staff
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAssignAgent("UNASSIGNED", true)}
+                  className="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-xl font-bold transition-colors"
+                >
+                  Move to Waiting Queue
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAssignAgent(conflictAlert.targetStaffId, true)}
+                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold shadow-2xs transition-colors"
+                >
+                  Force Override Assignment
+                </button>
+              </div>
             </div>
           )}
 
