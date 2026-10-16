@@ -12,6 +12,7 @@ interface TicketsTableProps {
     all: number;
     open: number;
     inProgress: number;
+    customerReplied?: number;
     resolved: number;
     closed: number;
   };
@@ -25,7 +26,7 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
   setStatusFilter,
   onSelectTicket,
   onOpenCreate,
-  counts = { all: 124, open: 48, inProgress: 32, resolved: 36, closed: 8 },
+  counts = { all: 124, open: 48, inProgress: 32, customerReplied: 6, resolved: 36, closed: 8 },
   searchQuery,
   setSearchQuery,
 }) => {
@@ -33,6 +34,7 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
     { id: "ALL", label: `All (${counts.all})` },
     { id: "OPEN", label: `Open (${counts.open})` },
     { id: "IN_PROGRESS", label: `In Progress (${counts.inProgress})` },
+    { id: "CUSTOMER_REPLIED", label: `Customer Replied (${counts.customerReplied || 0})` },
     { id: "RESOLVED", label: `Resolved (${counts.resolved})` },
     { id: "CLOSED", label: `Closed (${counts.closed})` },
   ];
@@ -55,6 +57,8 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
         return "bg-[#EFF6FF] text-[#2563EB] border border-[#DBEAFE]";
       case "IN_PROGRESS":
         return "bg-[#F5F3FF] text-[#7C3AED] border border-[#EDE9FE]";
+      case "CUSTOMER_REPLIED":
+        return "bg-[#FAF5FF] text-[#9333EA] border border-[#E9D5FF] font-semibold";
       case "RESOLVED":
         return "bg-[#ECFDF5] text-[#059669] border border-[#D1FAE5]";
       case "CLOSED":
@@ -68,6 +72,8 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
         return "Open";
       case "IN_PROGRESS":
         return "In Progress";
+      case "CUSTOMER_REPLIED":
+        return "Customer Replied";
       case "RESOLVED":
         return "Resolved";
       case "CLOSED":

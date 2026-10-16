@@ -20,6 +20,7 @@ interface TicketsViewProps {
     all: number;
     open: number;
     inProgress: number;
+    customerReplied?: number;
     resolved: number;
     closed: number;
   };
@@ -68,6 +69,8 @@ export const TicketsView: React.FC<TicketsViewProps> = ({
         return "bg-blue-50 text-blue-600 border border-blue-200";
       case "IN_PROGRESS":
         return "bg-purple-50 text-purple-600 border border-purple-200";
+      case "CUSTOMER_REPLIED":
+        return "bg-purple-100 text-purple-700 border border-purple-300 font-semibold";
       case "RESOLVED":
         return "bg-emerald-50 text-emerald-600 border border-emerald-200";
       case "CLOSED":
@@ -148,6 +151,7 @@ export const TicketsView: React.FC<TicketsViewProps> = ({
             { id: "ALL", label: `All Tickets (${counts.all})` },
             { id: "OPEN", label: `Open (${counts.open})` },
             { id: "IN_PROGRESS", label: `In Progress (${counts.inProgress})` },
+            { id: "CUSTOMER_REPLIED", label: `Customer Replied (${counts.customerReplied || 0})` },
             { id: "RESOLVED", label: `Resolved (${counts.resolved})` },
             { id: "CLOSED", label: `Closed (${counts.closed})` },
           ].map((tab) => (

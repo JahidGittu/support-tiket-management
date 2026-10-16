@@ -47,7 +47,7 @@ describe("ResolveDesk AI - Ticket Workflow & Business Logic Tests", () => {
     });
 
     it("should accept valid ticket statuses", () => {
-      const allowed = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"];
+      const allowed = ["OPEN", "IN_PROGRESS", "CUSTOMER_REPLIED", "RESOLVED", "CLOSED"];
       allowed.forEach((status) => {
         const result = updateStatusSchema.safeParse({ status });
         expect(result.success).toBe(true);
@@ -58,7 +58,7 @@ describe("ResolveDesk AI - Ticket Workflow & Business Logic Tests", () => {
   describe("Status Transition Logic", () => {
     const isValidTransition = (current: string, next: string): boolean => {
       if (current === "CLOSED") return false;
-      const validStates = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"];
+      const validStates = ["OPEN", "IN_PROGRESS", "CUSTOMER_REPLIED", "RESOLVED", "CLOSED"];
       return validStates.includes(next);
     };
 
@@ -70,9 +70,15 @@ describe("ResolveDesk AI - Ticket Workflow & Business Logic Tests", () => {
       expect(isValidTransition("IN_PROGRESS", "RESOLVED")).toBe(true);
     });
 
+    it("should permit auto-transition to CUSTOMER_REPLIED when customer sends a follow-up reply", () => {
+      expect(isValidTransition("IN_PROGRESS", "CUSTOMER_REPLIED")).toBe(true);
+      expect(isValidTransition("RESOLVED", "CUSTOMER_REPLIED")).toBe(true);
+    });
+
     it("should prevent modification or reopening when ticket is CLOSED", () => {
       expect(isValidTransition("CLOSED", "OPEN")).toBe(false);
       expect(isValidTransition("CLOSED", "IN_PROGRESS")).toBe(false);
+      expect(isValidTransition("CLOSED", "CUSTOMER_REPLIED")).toBe(false);
     });
   });
 

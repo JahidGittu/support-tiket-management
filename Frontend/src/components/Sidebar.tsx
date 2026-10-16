@@ -9,6 +9,7 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import { User } from "../types";
 
@@ -44,6 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: "Knowledge Base", label: "Knowledge Base", icon: BookOpen },
     { id: "Reports", label: "Reports & Analytics", icon: BarChart3 },
     { id: "Settings", label: "System Settings", icon: Settings },
+    { id: "AI Assistant", label: "AI Copilot Assistant", icon: Sparkles, badge: "AI" },
   ];
 
   const getInitials = (name?: string) => {
@@ -134,7 +136,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {isActive ? (
                     <ChevronRight className="w-4 h-4 text-white" />
                   ) : item.badge !== undefined ? (
-                    <span className="text-[10px] px-2 py-0.2 rounded-full bg-slate-700 text-slate-300 font-bold">
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                        item.badge === "AI"
+                          ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                          : "bg-slate-700 text-slate-300"
+                      }`}
+                    >
                       {item.badge}
                     </span>
                   ) : null}

@@ -16,6 +16,7 @@ import { TeamView } from "./components/views/TeamView";
 import { KnowledgeBaseView } from "./components/views/KnowledgeBaseView";
 import { ReportsView } from "./components/views/ReportsView";
 import { SettingsView } from "./components/views/SettingsView";
+import { AIAssistantView } from "./components/views/AIAssistantView";
 import { Calendar } from "lucide-react";
 
 export function App() {
@@ -130,6 +131,7 @@ export function App() {
     const rawAll = tickets.length;
     const rawOpen = tickets.filter((t) => t.status === "OPEN").length;
     const rawInProg = tickets.filter((t) => t.status === "IN_PROGRESS").length;
+    const rawReplied = tickets.filter((t) => t.status === "CUSTOMER_REPLIED").length;
     const rawResolved = tickets.filter((t) => t.status === "RESOLVED").length;
     const rawClosed = tickets.filter((t) => t.status === "CLOSED").length;
 
@@ -137,6 +139,7 @@ export function App() {
       all: Math.max(124, rawAll),
       open: rawOpen > 0 ? rawOpen : 48,
       inProgress: rawInProg > 0 ? rawInProg : 32,
+      customerReplied: rawReplied > 0 ? rawReplied : 6,
       resolved: rawResolved > 0 ? rawResolved : 36,
       closed: rawClosed > 0 ? rawClosed : 8,
     };
@@ -206,6 +209,8 @@ export function App() {
             <ReportsView tickets={tickets} counts={counts} />
           ) : activeMenu === "Settings" ? (
             <SettingsView />
+          ) : activeMenu === "AI Assistant" ? (
+            <AIAssistantView tickets={tickets} onSelectTicket={handleSelectTicket} />
           ) : (
             /* Default: Modern Support Ticket Dashboard Overview */
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-7 items-start">

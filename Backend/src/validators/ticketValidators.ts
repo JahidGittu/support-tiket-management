@@ -8,8 +8,8 @@ export const createTicketSchema = z.object({
 });
 
 export const updateStatusSchema = z.object({
-  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"], {
-    errorMap: () => ({ message: "Status must be OPEN, IN_PROGRESS, RESOLVED, or CLOSED" }),
+  status: z.enum(["OPEN", "IN_PROGRESS", "CUSTOMER_REPLIED", "RESOLVED", "CLOSED"], {
+    errorMap: () => ({ message: "Status must be OPEN, IN_PROGRESS, CUSTOMER_REPLIED, RESOLVED, or CLOSED" }),
   }),
 });
 

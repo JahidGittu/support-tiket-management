@@ -75,6 +75,19 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         ticketId: t.id,
       });
 
+      if (t.status === "CUSTOMER_REPLIED") {
+        const replyNotifId = `reply-${t.id}`;
+        list.push({
+          id: replyNotifId,
+          title: `💬 Customer Replied: ${t.title}`,
+          message: `${t.customer?.name || "Customer"} submitted a response. Immediate agent action requested.`,
+          time: "2m ago",
+          type: "alert",
+          read: readIds.has(replyNotifId),
+          ticketId: t.id,
+        });
+      }
+
       if (t.aiSummary) {
         const aiId = `ai-${t.id}`;
         list.push({

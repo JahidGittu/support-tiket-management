@@ -155,10 +155,18 @@ export const addComment = async (req: AuthenticatedRequest, res: Response, next:
       isInternal: user.role === "CUSTOMER" ? false : isInternal,
     });
 
+    let updatedTicket = null;
+    if (user.role === "CUSTOMER" && existingTicket.status !== "CLOSED") {
+      updatedTicket = await ticketService.updateTicketStatus(id, "CUSTOMER_REPLIED");
+    }
+
     return res.status(201).json({
       success: true,
       message: "Comment added successfully",
-      data: comment,
+      data: {
+        comment,
+        updatedStatus: updatedTicket ? updatedTicket.status : existingTicket.status,
+      },
     });
   } catch (error) {
     next(error);

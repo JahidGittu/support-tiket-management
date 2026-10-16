@@ -8,6 +8,7 @@ interface ReportsViewProps {
     all: number;
     open: number;
     inProgress: number;
+    customerReplied?: number;
     resolved: number;
     closed: number;
   };
@@ -139,6 +140,26 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tickets, counts }) => 
                 ></div>
               </div>
             </div>
+
+            {counts.customerReplied && counts.customerReplied > 0 ? (
+              <div>
+                <div className="flex items-center justify-between mb-1.5 font-medium">
+                  <span className="text-slate-600 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-purple-600"></span>
+                    Customer Replied (Waiting on Agent)
+                  </span>
+                  <span className="font-bold text-slate-900">
+                    {counts.customerReplied} ({Math.round((counts.customerReplied / total) * 100)}%)
+                  </span>
+                </div>
+                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                  <div
+                    className="bg-purple-600 h-full rounded-full"
+                    style={{ width: `${Math.round((counts.customerReplied / total) * 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+            ) : null}
 
             <div>
               <div className="flex items-center justify-between mb-1.5 font-medium">

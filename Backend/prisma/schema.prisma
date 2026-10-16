@@ -23,6 +23,7 @@ enum Priority {
 enum TicketStatus {
   OPEN
   IN_PROGRESS
+  CUSTOMER_REPLIED
   RESOLVED
   CLOSED
 }

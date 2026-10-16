@@ -117,7 +117,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-slate-600">Update Status:</span>
-                {(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"] as TicketStatus[]).map((st) => (
+                {(["OPEN", "IN_PROGRESS", "CUSTOMER_REPLIED", "RESOLVED", "CLOSED"] as TicketStatus[]).map((st) => (
                   <button
                     key={st}
                     onClick={() => handleStatusChange(st)}
@@ -128,7 +128,11 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                         : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
                     }`}
                   >
-                    {st === "IN_PROGRESS" ? "In Progress" : st.charAt(0) + st.slice(1).toLowerCase()}
+                    {st === "IN_PROGRESS"
+                      ? "In Progress"
+                      : st === "CUSTOMER_REPLIED"
+                      ? "Customer Replied"
+                      : st.charAt(0) + st.slice(1).toLowerCase()}
                   </button>
                 ))}
               </div>

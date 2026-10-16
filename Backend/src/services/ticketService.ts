@@ -1,4 +1,5 @@
 import { prisma } from "../prismaClient";
+import { TicketStatus } from "@prisma/client";
 import { analyzeTicketWithAi } from "./geminiService";
 
 export interface TicketFilterOptions {
@@ -118,7 +119,7 @@ export const createTicket = async (data: {
 
 export const updateTicketStatus = async (
   ticketId: string,
-  newStatus: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED"
+  newStatus: TicketStatus
 ) => {
   return prisma.ticket.update({
     where: { id: ticketId },

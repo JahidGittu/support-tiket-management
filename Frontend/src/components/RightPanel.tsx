@@ -14,6 +14,7 @@ interface RightPanelProps {
   statusCounts?: {
     open: number;
     inProgress: number;
+    customerReplied?: number;
     resolved: number;
     closed: number;
     total: number;

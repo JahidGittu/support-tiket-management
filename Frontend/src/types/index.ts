@@ -1,6 +1,6 @@
 export type Role = "ADMIN" | "AGENT" | "CUSTOMER";
 export type Priority = "URGENT" | "HIGH" | "MEDIUM" | "LOW";
-export type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
+export type TicketStatus = "OPEN" | "IN_PROGRESS" | "CUSTOMER_REPLIED" | "RESOLVED" | "CLOSED";
 export type Category = "BILLING" | "TECHNICAL" | "ACCOUNT" | "GENERAL";
 
 export interface User {
