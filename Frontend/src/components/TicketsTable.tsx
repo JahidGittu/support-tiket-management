@@ -1,6 +1,6 @@
 import React from "react";
 import { Ticket, TicketStatus, Priority } from "../types";
-import { Plus, ArrowRight, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, ArrowRight, MoreVertical, ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 interface TicketsTableProps {
   tickets: Ticket[];
@@ -15,6 +15,8 @@ interface TicketsTableProps {
     resolved: number;
     closed: number;
   };
+  searchQuery?: string;
+  setSearchQuery?: (q: string) => void;
 }
 
 export const TicketsTable: React.FC<TicketsTableProps> = ({
@@ -24,6 +26,8 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
   onSelectTicket,
   onOpenCreate,
   counts = { all: 124, open: 48, inProgress: 32, resolved: 36, closed: 8 },
+  searchQuery,
+  setSearchQuery,
 }) => {
   const tabs = [
     { id: "ALL", label: `All (${counts.all})` },
@@ -109,7 +113,19 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {setSearchQuery && (
+            <div className="relative w-56 hidden sm:block">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search tickets..."
+                value={searchQuery || ""}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-8.5 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-[#1D68FE] transition-all"
+              />
+            </div>
+          )}
           <button
             onClick={onOpenCreate}
             className="bg-[#1D68FE] hover:bg-blue-600 text-white font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-sm shadow-blue-500/25 transition-all"

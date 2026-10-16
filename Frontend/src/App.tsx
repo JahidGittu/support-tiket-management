@@ -189,6 +189,8 @@ export function App() {
                 onSelectTicket={handleSelectTicket}
                 onOpenCreate={() => setIsCreateOpen(true)}
                 counts={counts}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
               />
 
               <AiHelpBanner onOpenAi={() => setIsCreateOpen(true)} />

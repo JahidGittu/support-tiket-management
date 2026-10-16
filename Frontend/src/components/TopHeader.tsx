@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Search, Bell, ChevronDown, ShieldCheck, LogOut, Building2 } from "lucide-react";
+import { Bell, ChevronDown, ShieldCheck, LogOut, Building2 } from "lucide-react";
 import { User } from "../types";
 
 interface TopHeaderProps {
   currentUser: User | null;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
+  searchQuery?: string;
+  setSearchQuery?: (query: string) => void;
   onSwitchUser: (email: string) => void;
   onLogout: () => void;
 }
@@ -27,39 +27,19 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
   return (
     <header className="h-18 bg-[#1E222D] border-b border-slate-800/90 px-6 flex items-center justify-between sticky top-0 z-30 select-none">
-      {/* Left: Logo, Title, Version & Subtitle */}
+      {/* Left: Logo, Title & Subtitle */}
       <div className="flex items-center gap-3 shrink-0">
         <div className="w-10 h-10 rounded-xl bg-[#141720] border border-slate-700/60 flex items-center justify-center text-[#00BFA5] shadow-xs">
           <Building2 className="w-5 h-5 stroke-[2.2]" />
         </div>
 
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-white text-sm font-extrabold tracking-wider">
-              RESOLVEDESK ERP
-            </h1>
-            <span className="border border-slate-600 text-slate-400 text-[10px] font-semibold px-1.5 py-0.2 rounded-md">
-              v2.5
-            </span>
-          </div>
+          <h1 className="text-white text-base font-extrabold tracking-wider">
+            RESOLVEDESK ERP
+          </h1>
           <p className="text-[11px] text-slate-400 font-medium">
             Central Control Panel & Ticket Triage
           </p>
-        </div>
-      </div>
-
-      {/* Middle: Sleek Dark Search Bar */}
-      <div className="relative w-full max-w-md mx-6 hidden md:block">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-        <input
-          type="text"
-          placeholder="Search tickets, customers, or keywords..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-[#161922] border border-slate-700/80 rounded-xl pl-10 pr-12 py-2 text-xs text-slate-200 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-[#00897B] transition-all"
-        />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-[#21252F] border border-slate-700 px-1.5 py-0.5 rounded-md text-[10px] font-medium text-slate-400">
-          ⌘ K
         </div>
       </div>
 
