@@ -19,7 +19,6 @@ apiClient.interceptors.request.use((config) => {
 });
 
 export const api = {
-  // Auth
   login: async (email: string, password: string): Promise<{ user: User; token: string }> => {
     const res = await apiClient.post("/auth/login", { email, password });
     return res.data.data;
@@ -40,7 +39,6 @@ export const api = {
     return res.data.data;
   },
 
-  // Tickets
   getTickets: async (params?: { status?: string; priority?: string; category?: string; search?: string }): Promise<Ticket[]> => {
     const res = await apiClient.get("/tickets", { params });
     return res.data.data;
@@ -71,7 +69,6 @@ export const api = {
     return res.data.data;
   },
 
-  // AI
   classifyTicket: async (title: string, description: string): Promise<AiTriageResult> => {
     const res = await apiClient.post("/ai/classify", { title, description });
     return res.data.data;

@@ -83,7 +83,6 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
     }
   };
 
-  // Predefined realistic avatar list matching reference design
   const customerAvatars: Record<string, string> = {
     "Arif Rahman": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150",
     "Nusrat Jahan": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150",
@@ -102,7 +101,6 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs mb-7">
-      {/* Top Header: Title, Description, New Ticket, View All */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
         <div>
           <h2 className="text-base font-bold text-slate-900 tracking-tight">Recent Tickets</h2>
@@ -126,7 +124,6 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
         </div>
       </div>
 
-      {/* Status Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-2">
         {tabs.map((tab) => {
           const isActive = statusFilter === tab.id;
@@ -146,7 +143,6 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
         })}
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -173,17 +169,14 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
                   onClick={() => onSelectTicket(ticket)}
                   className="hover:bg-slate-50/80 cursor-pointer transition-colors group"
                 >
-                  {/* ID */}
                   <td className="py-3.5 pl-2 font-mono text-slate-500 text-[11px]">
                     #TKT-{1024 - index}
                   </td>
 
-                  {/* Subject */}
                   <td className="py-3.5 font-semibold text-slate-800 group-hover:text-[#1D68FE] transition-colors pr-4">
                     {ticket.title}
                   </td>
 
-                  {/* Customer */}
                   <td className="py-3.5 pr-4">
                     <div className="flex items-center gap-2.5">
                       <img
@@ -202,7 +195,6 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
                     </div>
                   </td>
 
-                  {/* Priority */}
                   <td className="py-3.5 pr-4">
                     <span
                       className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${getPriorityBadge(
@@ -213,7 +205,6 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
                     </span>
                   </td>
 
-                  {/* Status */}
                   <td className="py-3.5 pr-4">
                     <span
                       className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${getStatusBadge(
@@ -224,12 +215,10 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
                     </span>
                   </td>
 
-                  {/* Updated */}
                   <td className="py-3.5 text-slate-400 text-[11px] whitespace-nowrap">
                     {getRelativeTime(index)}
                   </td>
 
-                  {/* Action */}
                   <td className="py-3.5 pr-2 text-right">
                     <button className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
                       <MoreVertical className="w-4 h-4" />
@@ -242,7 +231,6 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
         </table>
       </div>
 
-      {/* Pagination Footer */}
       <div className="flex items-center justify-between pt-5 border-t border-slate-100 text-xs text-slate-500 mt-2">
         <div className="flex items-center gap-1">
           <button className="w-7 h-7 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-400">

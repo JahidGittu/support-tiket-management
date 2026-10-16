@@ -32,9 +32,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   statusCounts = { open: 48, inProgress: 32, resolved: 36, closed: 8, total: 124 },
   priorityCounts = { high: 28, medium: 56, low: 40, total: 124 },
 }) => {
-  // SVG Donut chart calculation
   const radius = 42;
-  const circumference = 2 * Math.PI * radius; // ~263.89
+  const circumference = 2 * Math.PI * radius;
 
   const openPct = 0.38;
   const inProgPct = 0.26;
@@ -53,15 +52,12 @@ export const RightPanel: React.FC<RightPanelProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 1. Tickets by Status */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
         <h3 className="text-sm font-bold text-slate-900 mb-4">Tickets by Status</h3>
 
         <div className="flex items-center justify-between gap-4">
-          {/* Donut Chart */}
           <div className="relative w-28 h-28 shrink-0 flex items-center justify-center">
             <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-              {/* Background ring */}
               <circle
                 cx="50"
                 cy="50"
@@ -70,7 +66,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 strokeWidth="11"
                 fill="none"
               />
-              {/* Open: Blue */}
               <circle
                 cx="50"
                 cy="50"
@@ -82,7 +77,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 strokeLinecap="round"
                 fill="none"
               />
-              {/* In Progress: Purple */}
               <circle
                 cx="50"
                 cy="50"
@@ -94,7 +88,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 strokeLinecap="round"
                 fill="none"
               />
-              {/* Resolved: Green */}
               <circle
                 cx="50"
                 cy="50"
@@ -106,7 +99,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 strokeLinecap="round"
                 fill="none"
               />
-              {/* Closed: Slate */}
               <circle
                 cx="50"
                 cy="50"
@@ -120,7 +112,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               />
             </svg>
 
-            {/* Center label */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
               <span className="text-lg font-bold text-slate-900 leading-none">
                 {statusCounts.total}
@@ -129,7 +120,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             </div>
           </div>
 
-          {/* Legend */}
           <div className="flex-1 space-y-2.5 text-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -178,12 +168,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         </div>
       </div>
 
-      {/* 2. Tickets by Priority */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
         <h3 className="text-sm font-bold text-slate-900 mb-4">Tickets by Priority</h3>
 
         <div className="space-y-3.5 text-xs">
-          {/* High */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 w-20 shrink-0">
               <span className="w-2 h-2 rounded-full bg-red-500"></span>
@@ -198,7 +186,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             </div>
           </div>
 
-          {/* Medium */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 w-20 shrink-0">
               <span className="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -213,7 +200,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             </div>
           </div>
 
-          {/* Low */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 w-20 shrink-0">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -230,7 +216,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         </div>
       </div>
 
-      {/* 3. AI Suggestion (Beta) */}
       <div className="bg-white rounded-2xl border border-indigo-100/90 p-5 shadow-xs relative overflow-hidden">
         <div className="flex items-center gap-2 mb-2.5">
           <div className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
@@ -259,7 +244,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         </div>
       </div>
 
-      {/* 4. Quick Actions */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
         <h3 className="text-sm font-bold text-slate-900 mb-3">Quick Actions</h3>
 

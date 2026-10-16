@@ -12,7 +12,6 @@ async function main() {
   console.log("Seeding users...");
   const hashedPassword = await bcrypt.hash("password123", 10);
 
-  // Admin & Agents
   const admin = await prisma.user.create({
     data: {
       name: "Rafsan Ahmed",
@@ -31,7 +30,6 @@ async function main() {
     },
   });
 
-  // Customers from the reference UI
   const customerList = [
     { name: "Arif Rahman", email: "arif@example.com" },
     { name: "Nusrat Jahan", email: "nusrat@example.com" },
@@ -171,7 +169,6 @@ async function main() {
       },
     });
 
-    // Sample comments
     await prisma.ticketComment.create({
       data: {
         ticketId: ticket.id,
