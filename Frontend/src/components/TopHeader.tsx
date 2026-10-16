@@ -224,17 +224,17 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
               <button
                 onClick={() => {
-                  onSwitchUser("arif@example.com");
+                  onSwitchUser("farhan@supportticket.com");
                   setUserMenuOpen(false);
                 }}
                 className="w-full text-left px-4 py-2.5 hover:bg-slate-700/40 flex items-center justify-between transition-colors"
               >
                 <div>
-                  <div className="font-bold text-white">Arif Rahman</div>
-                  <div className="text-[10px] text-slate-400">arif@example.com</div>
+                  <div className="font-bold text-white">Farhan Kabir</div>
+                  <div className="text-[10px] text-slate-400">farhan@supportticket.com</div>
                 </div>
-                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-300 border border-emerald-700">
-                  CUSTOMER
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-900/60 text-blue-300 border border-blue-700">
+                  AGENT
                 </span>
               </button>
 

@@ -28,10 +28,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setActiveMenu,
   onOpenPersonaModal,
   onLogout,
-  openCount = 48,
-  inProgressCount = 32,
-  pendingCount = 36,
-  openTicketsCount = 48,
+  openCount = 0,
+  inProgressCount = 0,
+  pendingCount = 0,
+  openTicketsCount = 0,
 }) => {
   const menuItems = [
     { id: "Dashboard", label: "Dashboard", icon: LayoutDashboard },

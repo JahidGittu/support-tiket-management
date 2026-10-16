@@ -9,10 +9,10 @@ interface MetricCardsProps {
 }
 
 export const MetricCards: React.FC<MetricCardsProps> = ({
-  totalCount = 124,
-  openCount = 48,
-  resolvedCount = 68,
-  avgResponseTime = "2h 14m",
+  totalCount = 0,
+  openCount = 0,
+  resolvedCount = 0,
+  avgResponseTime = "--",
 }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">

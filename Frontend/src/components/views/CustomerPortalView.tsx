@@ -236,16 +236,6 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
                   </div>
                   <button
                     onClick={() => {
-                      onSwitchUser("arif@example.com");
-                      setProfileDropdown(false);
-                    }}
-                    className="w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg flex items-center justify-between cursor-pointer"
-                  >
-                    <span>Arif Rahman (Customer)</span>
-                    <span className="text-[10px] bg-slate-200 px-1.5 py-0.2 rounded font-mono">User</span>
-                  </button>
-                  <button
-                    onClick={() => {
                       onSwitchUser("agent@supportticket.com");
                       setProfileDropdown(false);
                     }}

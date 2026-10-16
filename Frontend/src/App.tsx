@@ -284,7 +284,7 @@ export function App() {
     }
   };
 
-  // Dynamic calculations using smart single-pass aggregation
+  // Dynamic calculations from live database tickets & queues (zero mock fallbacks)
   const counts = useMemo(() => {
     const rawAll = tickets.length;
     const rawOpen = tickets.filter((t) => t.status === "OPEN").length;
@@ -295,13 +295,13 @@ export function App() {
     const rawWaiting = queueTickets.length;
 
     return {
-      all: Math.max(124, rawAll),
-      open: rawOpen > 0 ? rawOpen : 48,
-      inProgress: rawInProg > 0 ? rawInProg : 32,
-      customerReplied: rawReplied > 0 ? rawReplied : 6,
-      waitingQueue: rawWaiting > 0 ? rawWaiting : 3,
-      resolved: rawResolved > 0 ? rawResolved : 36,
-      closed: rawClosed > 0 ? rawClosed : 8,
+      all: rawAll,
+      open: rawOpen,
+      inProgress: rawInProg,
+      customerReplied: rawReplied,
+      waitingQueue: rawWaiting,
+      resolved: rawResolved,
+      closed: rawClosed,
     };
   }, [tickets, queueTickets]);
 
@@ -311,9 +311,9 @@ export function App() {
     const rawLow = tickets.filter((t) => t.priority === "LOW").length;
 
     return {
-      high: rawHigh > 0 ? rawHigh : 28,
-      medium: rawMed > 0 ? rawMed : 56,
-      low: rawLow > 0 ? rawLow : 40,
+      high: rawHigh,
+      medium: rawMed,
+      low: rawLow,
       total: counts.all,
     };
   }, [tickets, counts]);

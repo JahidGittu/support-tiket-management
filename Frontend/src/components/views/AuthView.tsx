@@ -177,38 +177,27 @@ export const AuthView: React.FC<AuthViewProps> = ({
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleDemoLogin("arif@example.com")}
-                    disabled={loading}
-                    className="p-2 bg-white hover:bg-emerald-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition-all duration-200 flex flex-col items-center text-center cursor-pointer group hover:scale-[1.03] active:scale-[0.98]"
-                  >
-                    <UserIcon className="w-4 h-4 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
-                    <span className="text-[11px] font-bold text-slate-800">Customer</span>
-                    <span className="text-[9px] text-emerald-600 font-mono font-medium">/customer</span>
-                  </button>
-
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => handleDemoLogin("agent@supportticket.com")}
                     disabled={loading}
-                    className="p-2 bg-white hover:bg-blue-50 rounded-xl border border-slate-200 hover:border-blue-300 transition-all duration-200 flex flex-col items-center text-center cursor-pointer group hover:scale-[1.03] active:scale-[0.98]"
+                    className="p-2.5 bg-white hover:bg-blue-50 rounded-xl border border-slate-200 hover:border-blue-300 transition-all duration-200 flex flex-col items-center text-center cursor-pointer group hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <Headphones className="w-4 h-4 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
-                    <span className="text-[11px] font-bold text-slate-800">Agent</span>
-                    <span className="text-[9px] text-blue-600 font-mono font-medium">/agent</span>
+                    <span className="text-xs font-bold text-slate-800">Support Agent</span>
+                    <span className="text-[10px] text-blue-600 font-mono font-medium mt-0.5">/agent</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleDemoLogin("admin@supportticket.com")}
                     disabled={loading}
-                    className="p-2 bg-white hover:bg-purple-50 rounded-xl border border-slate-200 hover:border-purple-300 transition-all duration-200 flex flex-col items-center text-center cursor-pointer group hover:scale-[1.03] active:scale-[0.98]"
+                    className="p-2.5 bg-white hover:bg-purple-50 rounded-xl border border-slate-200 hover:border-purple-300 transition-all duration-200 flex flex-col items-center text-center cursor-pointer group hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <Shield className="w-4 h-4 text-purple-600 mb-1 group-hover:scale-110 transition-transform" />
-                    <span className="text-[11px] font-bold text-slate-800">Admin</span>
-                    <span className="text-[9px] text-purple-600 font-mono font-medium">/admin</span>
+                    <span className="text-xs font-bold text-slate-800">Super Admin</span>
+                    <span className="text-[10px] text-purple-600 font-mono font-medium mt-0.5">/admin</span>
                   </button>
                 </div>
               </div>

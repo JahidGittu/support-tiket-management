@@ -30,16 +30,17 @@ interface RightPanelProps {
 export const RightPanel: React.FC<RightPanelProps> = ({
   onOpenCreate,
   onOpenAiSuggestion,
-  statusCounts = { open: 48, inProgress: 32, resolved: 36, closed: 8, total: 124 },
-  priorityCounts = { high: 28, medium: 56, low: 40, total: 124 },
+  statusCounts = { open: 0, inProgress: 0, resolved: 0, closed: 0, total: 0 },
+  priorityCounts = { high: 0, medium: 0, low: 0, total: 0 },
 }) => {
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
 
-  const openPct = 0.38;
-  const inProgPct = 0.26;
-  const resPct = 0.29;
-  const closedPct = 0.07;
+  const total = statusCounts.total || 0;
+  const openPct = total > 0 ? statusCounts.open / total : 0;
+  const inProgPct = total > 0 ? statusCounts.inProgress / total : 0;
+  const resPct = total > 0 ? statusCounts.resolved / total : 0;
+  const closedPct = total > 0 ? statusCounts.closed / total : 0;
 
   const openStroke = openPct * circumference;
   const inProgStroke = inProgPct * circumference;
@@ -50,6 +51,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   const inProgOffset = -openStroke;
   const resOffset = -(openStroke + inProgStroke);
   const closedOffset = -(openStroke + inProgStroke + resStroke);
+
+  const prioTotal = priorityCounts.total || 0;
+  const highPctVal = prioTotal > 0 ? Math.round((priorityCounts.high / prioTotal) * 100) : 0;
+  const medPctVal = prioTotal > 0 ? Math.round((priorityCounts.medium / prioTotal) * 100) : 0;
+  const lowPctVal = prioTotal > 0 ? Math.round((priorityCounts.low / prioTotal) * 100) : 0;
 
   return (
     <div className="space-y-6">
@@ -129,7 +135,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-bold text-slate-800">{statusCounts.open}</span>
-                <span className="text-slate-400 text-[11px] w-7 text-right">38%</span>
+                <span className="text-slate-400 text-[11px] w-7 text-right">
+                  {Math.round(openPct * 100)}%
+                </span>
               </div>
             </div>
 
@@ -140,7 +148,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-bold text-slate-800">{statusCounts.inProgress}</span>
-                <span className="text-slate-400 text-[11px] w-7 text-right">26%</span>
+                <span className="text-slate-400 text-[11px] w-7 text-right">
+                  {Math.round(inProgPct * 100)}%
+                </span>
               </div>
             </div>
 
@@ -151,7 +161,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-bold text-slate-800">{statusCounts.resolved}</span>
-                <span className="text-slate-400 text-[11px] w-7 text-right">29%</span>
+                <span className="text-slate-400 text-[11px] w-7 text-right">
+                  {Math.round(resPct * 100)}%
+                </span>
               </div>
             </div>
 
@@ -162,7 +174,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-bold text-slate-800">{statusCounts.closed}</span>
-                <span className="text-slate-400 text-[11px] w-7 text-right">7%</span>
+                <span className="text-slate-400 text-[11px] w-7 text-right">
+                  {Math.round(closedPct * 100)}%
+                </span>
               </div>
             </div>
           </div>
@@ -179,11 +193,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               <span className="text-slate-700 font-medium">High</span>
             </div>
             <div className="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-red-500 h-full rounded-full" style={{ width: "23%" }}></div>
+              <div className="bg-red-500 h-full rounded-full transition-all duration-300" style={{ width: `${highPctVal}%` }}></div>
             </div>
             <div className="flex items-center gap-2 w-16 justify-end shrink-0">
               <span className="font-bold text-slate-800">{priorityCounts.high}</span>
-              <span className="text-slate-400 text-[11px]">23%</span>
+              <span className="text-slate-400 text-[11px]">{highPctVal}%</span>
             </div>
           </div>
 
@@ -193,11 +207,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               <span className="text-slate-700 font-medium">Medium</span>
             </div>
             <div className="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-amber-500 h-full rounded-full" style={{ width: "45%" }}></div>
+              <div className="bg-amber-500 h-full rounded-full transition-all duration-300" style={{ width: `${medPctVal}%` }}></div>
             </div>
             <div className="flex items-center gap-2 w-16 justify-end shrink-0">
               <span className="font-bold text-slate-800">{priorityCounts.medium}</span>
-              <span className="text-slate-400 text-[11px]">45%</span>
+              <span className="text-slate-400 text-[11px]">{medPctVal}%</span>
             </div>
           </div>
 
@@ -207,11 +221,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               <span className="text-slate-700 font-medium">Low</span>
             </div>
             <div className="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-emerald-500 h-full rounded-full" style={{ width: "32%" }}></div>
+              <div className="bg-emerald-500 h-full rounded-full transition-all duration-300" style={{ width: `${lowPctVal}%` }}></div>
             </div>
             <div className="flex items-center gap-2 w-16 justify-end shrink-0">
               <span className="font-bold text-slate-800">{priorityCounts.low}</span>
-              <span className="text-slate-400 text-[11px]">32%</span>
+              <span className="text-slate-400 text-[11px]">{lowPctVal}%</span>
             </div>
           </div>
         </div>

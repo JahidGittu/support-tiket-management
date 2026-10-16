@@ -1,6 +1,6 @@
 import React from "react";
 import { Ticket, TicketStatus, Priority } from "../types";
-import { Plus, ArrowRight, MoreVertical, ChevronLeft, ChevronRight, Search, Clock } from "lucide-react";
+import { Plus, ArrowRight, MoreVertical, ChevronLeft, ChevronRight, Search, Clock, Inbox } from "lucide-react";
 
 interface TicketsTableProps {
   tickets: Ticket[];
@@ -27,7 +27,7 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
   setStatusFilter,
   onSelectTicket,
   onOpenCreate,
-  counts = { all: 124, open: 48, inProgress: 32, customerReplied: 6, waitingQueue: 3, resolved: 36, closed: 8 },
+  counts = { all: 0, open: 0, inProgress: 0, customerReplied: 0, waitingQueue: 0, resolved: 0, closed: 0 },
   searchQuery,
   setSearchQuery,
 }) => {
@@ -182,99 +182,122 @@ export const TicketsTable: React.FC<TicketsTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-xs">
-            {tickets
-              .filter((t) => {
-                if (statusFilter === "WAITING_QUEUE") {
-                  return !t.assignedToId && (t.status === "OPEN" || t.status === "CUSTOMER_REPLIED");
-                }
-                return true;
-              })
-              .map((ticket, index) => {
-              const customerName = ticket.customer?.name || "Customer";
-              const avatar =
-                customerAvatars[customerName] ||
-                `https://images.unsplash.com/photo-${1534528741775 + index}?auto=format&fit=crop&q=80&w=150`;
-
-              return (
-                <tr
-                  key={ticket.id}
-                  onClick={() => onSelectTicket(ticket)}
-                  className="hover:bg-slate-50/80 cursor-pointer transition-colors group"
-                >
-                  <td className="py-3.5 pl-2 font-mono text-slate-500 text-[11px]">
-                    #TKT-{1024 - index}
-                  </td>
-
-                  <td className="py-3.5 font-semibold text-slate-800 group-hover:text-[#1D68FE] transition-colors pr-4">
-                    {ticket.title}
-                  </td>
-
-                  <td className="py-3.5 pr-4">
-                    <div className="flex items-center gap-2.5">
-                      <img
-                        src={avatar}
-                        alt={customerName}
-                        className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-slate-100"
-                      />
-                      <div className="min-w-0">
-                        <div className="font-semibold text-slate-800 truncate text-xs">
-                          {customerName}
-                        </div>
-                        <div className="text-[11px] text-slate-400 truncate">
-                          {ticket.customer?.email || "user@example.com"}
-                        </div>
-                      </div>
+            {tickets.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="py-12 text-center">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                      <Inbox className="w-5 h-5" />
                     </div>
-                  </td>
-
-                  <td className="py-3.5 pr-4">
-                    {ticket.assignedTo ? (
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-5 h-5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-[9px]">
-                          {ticket.assignedTo.name?.[0] || "A"}
-                        </div>
-                        <span className="font-semibold text-slate-700 text-xs">{ticket.assignedTo.name}</span>
-                      </div>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                        <Clock className="w-2.5 h-2.5" />
-                        <span>Waiting Queue</span>
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="py-3.5 pr-4">
-                    <span
-                      className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${getPriorityBadge(
-                        ticket.priority
-                      )}`}
+                    <div className="text-xs font-bold text-slate-700">No Tickets Found</div>
+                    <p className="text-[11px] text-slate-400 max-w-xs">
+                      There are currently no tickets in the database. When tickets are submitted, they will appear here.
+                    </p>
+                    <button
+                      onClick={onOpenCreate}
+                      className="mt-1 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
                     >
-                      {formatPriorityText(ticket.priority)}
-                    </span>
-                  </td>
-
-                  <td className="py-3.5 pr-4">
-                    <span
-                      className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${getStatusBadge(
-                        ticket.status
-                      )}`}
-                    >
-                      {formatStatusText(ticket.status)}
-                    </span>
-                  </td>
-
-                  <td className="py-3.5 text-slate-400 text-[11px] whitespace-nowrap">
-                    {getRelativeTime(index)}
-                  </td>
-
-                  <td className="py-3.5 pr-2 text-right">
-                    <button className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
-                      <MoreVertical className="w-4 h-4" />
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Create New Ticket</span>
                     </button>
-                  </td>
-                </tr>
-              );
-            })}
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              tickets
+                .filter((t) => {
+                  if (statusFilter === "WAITING_QUEUE") {
+                    return !t.assignedToId && (t.status === "OPEN" || t.status === "CUSTOMER_REPLIED");
+                  }
+                  return true;
+                })
+                .map((ticket, index) => {
+                  const customerName = ticket.customer?.name || "Customer";
+                  const avatar =
+                    customerAvatars[customerName] ||
+                    `https://images.unsplash.com/photo-${1534528741775 + index}?auto=format&fit=crop&q=80&w=150`;
+
+                  return (
+                    <tr
+                      key={ticket.id}
+                      onClick={() => onSelectTicket(ticket)}
+                      className="hover:bg-slate-50/80 cursor-pointer transition-colors group"
+                    >
+                      <td className="py-3.5 pl-2 font-mono text-slate-500 text-[11px]">
+                        #TKT-{ticket.id.slice(0, 6)}
+                      </td>
+
+                      <td className="py-3.5 font-semibold text-slate-800 group-hover:text-[#1D68FE] transition-colors pr-4">
+                        {ticket.title}
+                      </td>
+
+                      <td className="py-3.5 pr-4">
+                        <div className="flex items-center gap-2.5">
+                          <img
+                            src={avatar}
+                            alt={customerName}
+                            className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-slate-100"
+                          />
+                          <div className="min-w-0">
+                            <div className="font-semibold text-slate-800 truncate text-xs">
+                              {customerName}
+                            </div>
+                            <div className="text-[11px] text-slate-400 truncate">
+                              {ticket.customer?.email || "user@example.com"}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 pr-4">
+                        {ticket.assignedTo ? (
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-5 h-5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-[9px]">
+                              {ticket.assignedTo.name?.[0] || "A"}
+                            </div>
+                            <span className="font-semibold text-slate-700 text-xs">{ticket.assignedTo.name}</span>
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                            <Clock className="w-2.5 h-2.5" />
+                            <span>Waiting Queue</span>
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 pr-4">
+                        <span
+                          className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${getPriorityBadge(
+                            ticket.priority
+                          )}`}
+                        >
+                          {formatPriorityText(ticket.priority)}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 pr-4">
+                        <span
+                          className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${getStatusBadge(
+                            ticket.status
+                          )}`}
+                        >
+                          {formatStatusText(ticket.status)}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 text-slate-400 text-[11px] whitespace-nowrap">
+                        {getRelativeTime(index)}
+                      </td>
+
+                      <td className="py-3.5 pr-2 text-right">
+                        <button className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+            )}
           </tbody>
         </table>
       </div>
