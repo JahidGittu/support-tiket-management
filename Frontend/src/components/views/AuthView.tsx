@@ -13,6 +13,8 @@ import {
   CheckCircle2,
   Building2,
   Headphones,
+  LogIn,
+  UserPlus,
 } from "lucide-react";
 
 interface AuthViewProps {
@@ -102,44 +104,75 @@ export const AuthView: React.FC<AuthViewProps> = ({
         </div>
 
         {/* Main Auth Card */}
-        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden">
-          {/* 2-Way Tab Bar */}
-          <div className="grid grid-cols-2 p-1.5 bg-slate-100/80 border-b border-slate-200/80 m-4 rounded-2xl">
+        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden transition-all duration-300">
+          {/* 2-Way Tab Bar with Smooth Sliding Animated Capsule */}
+          <div className="relative p-1.5 bg-slate-100/90 border-b border-slate-200/80 m-4 rounded-2xl flex select-none">
+            {/* Sliding Active Pill Background with Smooth Cubic-Bezier Transition */}
+            <div
+              className={`absolute top-1.5 bottom-1.5 left-1.5 w-[calc(50%-6px)] rounded-xl bg-white shadow-md shadow-slate-200/90 border border-slate-200/70 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform ${
+                activeTab === "login" ? "translate-x-0" : "translate-x-full"
+              }`}
+            />
+
+            {/* Tab 1: Sign In */}
             <button
               type="button"
+              id="tab-sign-in"
               onClick={() => {
                 setActiveTab("login");
                 setErrorMessage(null);
               }}
-              className={`py-2.5 text-xs font-bold rounded-xl transition-all ${
+              className={`relative z-10 w-1/2 py-2.5 text-xs font-extrabold flex items-center justify-center gap-2 transition-colors duration-300 cursor-pointer ${
                 activeTab === "login"
-                  ? "bg-white text-slate-900 shadow-sm"
+                  ? "text-slate-900"
                   : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              Sign In
+              <LogIn
+                className={`w-3.5 h-3.5 transition-all duration-300 ${
+                  activeTab === "login"
+                    ? "text-emerald-600 scale-110"
+                    : "text-slate-400"
+                }`}
+              />
+              <span>Sign In</span>
             </button>
 
+            {/* Tab 2: Create Account */}
             <button
               type="button"
+              id="tab-create-account"
               onClick={() => {
                 setActiveTab("register");
                 setErrorMessage(null);
               }}
-              className={`py-2.5 text-xs font-bold rounded-xl transition-all ${
+              className={`relative z-10 w-1/2 py-2.5 text-xs font-extrabold flex items-center justify-center gap-2 transition-colors duration-300 cursor-pointer ${
                 activeTab === "register"
-                  ? "bg-white text-slate-900 shadow-sm"
+                  ? "text-slate-900"
                   : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              Create Account
+              <UserPlus
+                className={`w-3.5 h-3.5 transition-all duration-300 ${
+                  activeTab === "register"
+                    ? "text-emerald-600 scale-110"
+                    : "text-slate-400"
+                }`}
+              />
+              <span>Create Account</span>
             </button>
           </div>
 
-          <div className="p-6 pt-2 space-y-5">
-            {/* Quick Demo Login Buttons (on Sign In tab) */}
-            {activeTab === "login" && (
-              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+          <div className="p-6 pt-2 space-y-4">
+            {/* Quick Demo Login Buttons (on Sign In tab) with Smooth Collapse */}
+            <div
+              className={`transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden ${
+                activeTab === "login"
+                  ? "max-h-48 opacity-100 scale-100 mb-2"
+                  : "max-h-0 opacity-0 scale-95 pointer-events-none mb-0"
+              }`}
+            >
+              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/90 space-y-2 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
                     Quick Demo Switcher
@@ -154,7 +187,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                     type="button"
                     onClick={() => handleDemoLogin("arif@example.com")}
                     disabled={loading}
-                    className="p-2 bg-white hover:bg-emerald-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition-all flex flex-col items-center text-center cursor-pointer group"
+                    className="p-2 bg-white hover:bg-emerald-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition-all duration-200 flex flex-col items-center text-center cursor-pointer group hover:scale-[1.03] active:scale-[0.98]"
                   >
                     <UserIcon className="w-4 h-4 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
                     <span className="text-[11px] font-bold text-slate-800">Customer</span>
@@ -165,7 +198,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                     type="button"
                     onClick={() => handleDemoLogin("agent@supportticket.com")}
                     disabled={loading}
-                    className="p-2 bg-white hover:bg-blue-50 rounded-xl border border-slate-200 hover:border-blue-300 transition-all flex flex-col items-center text-center cursor-pointer group"
+                    className="p-2 bg-white hover:bg-blue-50 rounded-xl border border-slate-200 hover:border-blue-300 transition-all duration-200 flex flex-col items-center text-center cursor-pointer group hover:scale-[1.03] active:scale-[0.98]"
                   >
                     <Headphones className="w-4 h-4 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
                     <span className="text-[11px] font-bold text-slate-800">Agent</span>
@@ -176,7 +209,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                     type="button"
                     onClick={() => handleDemoLogin("admin@supportticket.com")}
                     disabled={loading}
-                    className="p-2 bg-white hover:bg-purple-50 rounded-xl border border-slate-200 hover:border-purple-300 transition-all flex flex-col items-center text-center cursor-pointer group"
+                    className="p-2 bg-white hover:bg-purple-50 rounded-xl border border-slate-200 hover:border-purple-300 transition-all duration-200 flex flex-col items-center text-center cursor-pointer group hover:scale-[1.03] active:scale-[0.98]"
                   >
                     <Shield className="w-4 h-4 text-purple-600 mb-1 group-hover:scale-110 transition-transform" />
                     <span className="text-[11px] font-bold text-slate-800">Admin</span>
@@ -184,11 +217,11 @@ export const AuthView: React.FC<AuthViewProps> = ({
                   </button>
                 </div>
               </div>
-            )}
+            </div>
 
             {/* Error Message Alert */}
             {errorMessage && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2 animate-in fade-in-50 duration-200">
                 <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
                 <span>{errorMessage}</span>
               </div>
@@ -196,25 +229,29 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Registration: Full Name */}
-              {activeTab === "register" && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <UserIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      placeholder="e.g. Arif Rahman"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                      required
-                    />
-                  </div>
+              {/* Registration: Full Name (Smooth Expand / Collapse) */}
+              <div
+                className={`transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden ${
+                  activeTab === "register"
+                    ? "max-h-24 opacity-100"
+                    : "max-h-0 opacity-0 pointer-events-none"
+                }`}
+              >
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <UserIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="e.g. Arif Rahman"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                    required={activeTab === "register"}
+                  />
                 </div>
-              )}
+              </div>
 
               {/* Email */}
               <div>
@@ -252,48 +289,54 @@ export const AuthView: React.FC<AuthViewProps> = ({
                 </div>
               </div>
 
-              {/* Registration: Role Selection */}
-              {activeTab === "register" && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    Account Type (Role)
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { id: "CUSTOMER", label: "Customer", desc: "User Portal" },
-                      { id: "AGENT", label: "Agent", desc: "Support Staff" },
-                      { id: "ADMIN", label: "Admin", desc: "Full Access" },
-                    ].map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => setRole(item.id as Role)}
-                        className={`p-2.5 text-center rounded-xl border transition-all cursor-pointer ${
-                          role === item.id
-                            ? "border-emerald-500 bg-emerald-50/70 text-emerald-800 font-bold shadow-2xs"
-                            : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
-                        }`}
-                      >
-                        <div className="text-xs font-bold">{item.label}</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">{item.desc}</div>
-                      </button>
-                    ))}
-                  </div>
+              {/* Registration: Role Selection (Smooth Expand / Collapse) */}
+              <div
+                className={`transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden ${
+                  activeTab === "register"
+                    ? "max-h-36 opacity-100 pt-1"
+                    : "max-h-0 opacity-0 pointer-events-none pt-0"
+                }`}
+              >
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Account Type (Role)
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: "CUSTOMER", label: "Customer", desc: "User Portal" },
+                    { id: "AGENT", label: "Agent", desc: "Support Staff" },
+                    { id: "ADMIN", label: "Admin", desc: "Full Access" },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setRole(item.id as Role)}
+                      className={`p-2.5 text-center rounded-xl border transition-all duration-200 cursor-pointer ${
+                        role === item.id
+                          ? "border-emerald-500 bg-emerald-50/80 text-emerald-800 font-bold shadow-2xs ring-2 ring-emerald-500/20 scale-[1.02]"
+                          : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:border-slate-300"
+                      }`}
+                    >
+                      <div className="text-xs font-bold">{item.label}</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">{item.desc}</div>
+                    </button>
+                  ))}
                 </div>
-              )}
+              </div>
 
-              {/* Submit Button */}
+              {/* Submit Button with Micro-Interaction */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-[#1E222D] hover:bg-slate-800 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer"
+                className="w-full py-3 bg-[#1E222D] hover:bg-slate-800 active:scale-[0.99] text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer mt-2"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
                 ) : (
                   <>
-                    <span>{activeTab === "login" ? "Sign In to Dashboard" : "Complete Registration"}</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span className="transition-all duration-200">
+                      {activeTab === "login" ? "Sign In to Dashboard" : "Complete Registration"}
+                    </span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </>
                 )}
               </button>
