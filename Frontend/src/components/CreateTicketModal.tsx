@@ -93,8 +93,8 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
-            <h3 className="text-base font-bold text-slate-900">Create New Support Ticket</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Submit an issue with automatic AI classification</p>
+            <h3 className="text-base font-bold text-slate-900">নতুন সাপোর্ট টিকিট তৈরি করুন</h3>
+            <p className="text-xs text-slate-400 mt-0.5">স্বয়ংক্রিয় AI ক্লাসিফিকেশন সহ টিকিট এন্ট্রি করুন</p>
           </div>
           <button
             onClick={onClose}
@@ -116,14 +116,14 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
           {/* Title */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Issue Subject <span className="text-red-500">*</span>
+              সমস্যার বিষয় <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              placeholder="e.g. Payment not working on checkout page"
+              placeholder="যেমন: পেমেন্ট গেটওয়েতে ত্রুটি দেখাচ্ছে"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-[#1D68FE] transition-all"
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-[#00897B] transition-all"
               required
             />
           </div>
@@ -131,14 +131,14 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
           {/* Description */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Detailed Description <span className="text-red-500">*</span>
+              বিস্তারিত বিবরণ <span className="text-red-500">*</span>
             </label>
             <textarea
               rows={4}
-              placeholder="Describe what happened, error messages, or steps to reproduce..."
+              placeholder="সমস্যার বিস্তারিত, এরর মেসেজ বা ধাপগুলো লিখুন..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-[#1D68FE] transition-all"
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 focus:border-[#00897B] transition-all"
               required
             />
           </div>
@@ -149,38 +149,38 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
               type="button"
               onClick={handleAiTriage}
               disabled={aiAnalyzing}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-xl transition-all"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-xl transition-all"
             >
               {aiAnalyzing ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-violet-600" />
-                  <span>Gemini AI Analyzing Ticket...</span>
+                  <Loader2 className="w-4 h-4 animate-spin text-teal-600" />
+                  <span>Gemini AI টিকিট বিশ্লেষণ করছে...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-violet-600" />
-                  <span>Auto-Classify with Google Gemini AI</span>
+                  <Sparkles className="w-4 h-4 text-teal-600" />
+                  <span>Google Gemini AI দিয়ে অটো-ক্লাসিফাই করুন</span>
                 </>
               )}
             </button>
 
             {aiResult && (
-              <div className="mt-3 p-3.5 bg-linear-to-r from-violet-50 to-indigo-50 rounded-2xl border border-violet-200 space-y-1.5 animate-in fade-in duration-200">
+              <div className="mt-3 p-3.5 bg-linear-to-r from-teal-50 to-emerald-50 rounded-2xl border border-teal-200 space-y-1.5 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-violet-900 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-violet-600" />
-                    AI Triage Suggestion
+                  <span className="font-semibold text-teal-900 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                    AI ক্লাসিফিকেশন সাজেশন
                   </span>
                   <div className="flex items-center gap-1.5">
-                    <span className="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    <span className="bg-teal-100 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
                       {aiResult.category}
                     </span>
-                    <span className="bg-red-100 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
                       {aiResult.priority}
                     </span>
                   </div>
                 </div>
-                <p className="text-[11px] text-violet-800 font-medium">{aiResult.aiSummary}</p>
+                <p className="text-[11px] text-teal-800 font-medium">{aiResult.aiSummary}</p>
               </div>
             )}
           </div>
@@ -188,30 +188,30 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
           {/* Category & Priority Selector */}
           <div className="grid grid-cols-2 gap-3 pt-1">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Category</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">ক্যাটাগরি</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as Category)}
                 className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-700"
               >
-                <option value="GENERAL">General</option>
-                <option value="BILLING">Billing</option>
-                <option value="TECHNICAL">Technical</option>
-                <option value="ACCOUNT">Account</option>
+                <option value="GENERAL">সাধারণ (General)</option>
+                <option value="BILLING">বিলিং ও পেমেন্ট (Billing)</option>
+                <option value="TECHNICAL">কারিগরি সমস্যা (Technical)</option>
+                <option value="ACCOUNT">একাউন্ট ও লগইন (Account)</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Priority</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">অগ্রাধিকার</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as Priority)}
                 className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-700"
               >
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-                <option value="URGENT">Urgent</option>
+                <option value="LOW">স্বাভাবিক (Low)</option>
+                <option value="MEDIUM">মাঝারি (Medium)</option>
+                <option value="HIGH">জরুরি (High)</option>
+                <option value="URGENT">অতি জরুরি (Urgent)</option>
               </select>
             </div>
           </div>
@@ -223,20 +223,20 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
               onClick={onClose}
               className="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
             >
-              Cancel
+              বাতিল
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold text-white bg-[#1D68FE] hover:bg-blue-600 rounded-xl transition-all shadow-xs shadow-blue-500/20"
+              className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold text-white bg-[#00897B] hover:bg-teal-700 rounded-xl transition-all shadow-xs"
             >
               {submitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Submitting...</span>
+                  <span>সংরক্ষণ হচ্ছে...</span>
                 </>
               ) : (
-                <span>Submit Ticket</span>
+                <span>টিকিট তৈরি করুন</span>
               )}
             </button>
           </div>

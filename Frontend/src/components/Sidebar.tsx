@@ -1,14 +1,14 @@
 import React from "react";
 import {
-  LayoutDashboard,
-  Ticket,
+  LayoutGrid,
   Users,
-  UserCheck,
-  BookOpen,
-  BarChart3,
-  Settings,
-  Sparkles,
-  ChevronDown,
+  Wallet,
+  Clock,
+  FileText,
+  ShieldAlert,
+  Briefcase,
+  LogOut,
+  ChevronRight,
 } from "lucide-react";
 import { User } from "../types";
 
@@ -17,8 +17,10 @@ interface SidebarProps {
   activeMenu: string;
   setActiveMenu: (menu: string) => void;
   onOpenPersonaModal: () => void;
-  onOpenAiModal: () => void;
-  openTicketsCount?: number;
+  onLogout: () => void;
+  transactionCount?: number;
+  visaFileCount?: number;
+  pendingCount?: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -26,126 +28,129 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeMenu,
   setActiveMenu,
   onOpenPersonaModal,
-  onOpenAiModal,
-  openTicketsCount = 12,
+  onLogout,
+  transactionCount = 0,
+  visaFileCount = 0,
+  pendingCount = 0,
 }) => {
   const menuItems = [
-    { id: "Dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "Tickets", label: "Tickets", icon: Ticket, badge: openTicketsCount },
-    { id: "Customers", label: "Customers", icon: Users },
-    { id: "Team", label: "Team", icon: UserCheck },
-    { id: "Knowledge Base", label: "Knowledge Base", icon: BookOpen },
-    { id: "Reports", label: "Reports", icon: BarChart3 },
-    { id: "Settings", label: "Settings", icon: Settings },
+    { id: "Dashboard", label: "ড্যাশবোর্ড ওভারভিউ", icon: LayoutGrid },
+    { id: "Agents", label: "এজেন্ট ডিরেক্টরি", icon: Users },
+    { id: "Ledger", label: "ফাইন্যান্সিয়াল লেজার", icon: Wallet },
+    { id: "BankDeposit", label: "ব্যাংক ডিপোজিট যাচাই", icon: Clock },
+    { id: "VisaTracker", label: "ভিসা প্রসেসিং ট্র্যাকার", icon: FileText },
+    { id: "Blacklist", label: "পাসপোর্ট ব্ল্যাকলিস্ট", icon: ShieldAlert },
+    { id: "JobCircular", label: "জব সার্কুলার বোর্ড", icon: Briefcase },
   ];
 
+  const getInitials = (name?: string) => {
+    if (!name) return "AD";
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  const roleTitle = currentUser?.role === "ADMIN" 
+    ? "সুপার এডমিন (হেড অফিস)"
+    : currentUser?.role === "AGENT"
+    ? "সাপোর্ট এজেন্ট (কন্ট্রোল)"
+    : "কাস্টমার পোর্টাল";
+
   return (
-    <aside className="w-64 bg-[#0A1128] text-slate-300 flex flex-col justify-between shrink-0 h-screen sticky top-0 select-none z-20 border-r border-slate-900/40">
-      {/* Top Branding & Navigation */}
+    <aside className="w-72 bg-[#282C37] text-slate-300 flex flex-col justify-between shrink-0 h-screen sticky top-0 select-none z-20 border-r border-slate-700/50 p-4 overflow-y-auto">
       <div>
-        {/* Brand */}
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-linear-to-tr from-blue-600 via-indigo-600 to-sky-400 flex items-center justify-center text-white shadow-lg shadow-blue-500/25">
-            <svg
-              className="w-6 h-6 text-white"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 2a10 10 0 0 1 10 10c0 4.41-2.87 8.16-6.84 9.5-.5.1-.68-.22-.68-.48v-1.7c0-1.8-1.5-3.3-3.3-3.32H11c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1h2a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v1" />
-              <circle cx="12" cy="12" r="3" fill="currentColor" />
-            </svg>
+        {/* Profile Card Header */}
+        <div className="flex flex-col items-center text-center pt-2 pb-3">
+          {/* Circular Avatar with Green Online Dot */}
+          <div 
+            onClick={onOpenPersonaModal}
+            className="relative cursor-pointer group"
+            title="রোল ও একাউন্ট পরিবর্তন করতে ক্লিক করুন"
+          >
+            <div className="w-20 h-20 rounded-full border-2 border-white/90 bg-[#1A1D24] flex items-center justify-center text-white text-2xl font-black tracking-wider shadow-md group-hover:scale-105 transition-transform">
+              {currentUser?.role === "ADMIN" ? "AD" : getInitials(currentUser?.name)}
+            </div>
+            {/* Green Online Dot */}
+            <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-[#10B981] border-2 border-[#282C37]"></span>
           </div>
-          <div>
-            <h1 className="text-white text-base font-bold tracking-tight">SupportHub</h1>
-            <p className="text-[11px] text-slate-400 font-medium tracking-tight">
-              Smarter Support, Happier Users
-            </p>
+
+          {/* User Name & Role */}
+          <h2 className="text-white text-sm font-bold mt-3 leading-snug">
+            {roleTitle}
+          </h2>
+          <p className="text-[11px] text-slate-400 font-medium mt-0.5">
+            সেন্ট্রাল কন্ট্রোল ও হিসাব
+          </p>
+
+          {/* 3 Mini Stats Box Grid */}
+          <div className="w-full grid grid-cols-3 gap-2 mt-4">
+            <div className="bg-[#21252F] border border-slate-700/60 rounded-xl py-2 px-1 text-center">
+              <div className="text-sm font-bold text-white leading-tight">{transactionCount}</div>
+              <div className="text-[10px] text-slate-400 mt-0.5 font-medium">লেনদেন</div>
+            </div>
+
+            <div className="bg-[#21252F] border border-slate-700/60 rounded-xl py-2 px-1 text-center">
+              <div className="text-sm font-bold text-white leading-tight">{visaFileCount}</div>
+              <div className="text-[10px] text-slate-400 mt-0.5 font-medium">ভিসা ফাইল</div>
+            </div>
+
+            <div className="bg-[#21252F] border border-slate-700/60 rounded-xl py-2 px-1 text-center">
+              <div className="text-sm font-bold text-[#F59E0B] leading-tight">{pendingCount}</div>
+              <div className="text-[10px] text-slate-400 mt-0.5 font-medium">পেন্ডিং</div>
+            </div>
           </div>
         </div>
 
-        {/* Menu Items */}
-        <nav className="px-3 space-y-1">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeMenu === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveMenu(item.id)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  isActive
-                    ? "bg-[#1D68FE] text-white shadow-md shadow-blue-600/30"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-slate-400"}`} />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge !== undefined && (
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                      isActive ? "bg-white/20 text-white" : "bg-slate-800 text-slate-300"
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
+        {/* Separator Line */}
+        <div className="border-t border-slate-700/60 my-2"></div>
+
+        {/* Navigation Menu */}
+        <div className="pt-1">
+          <div className="px-3 text-[11px] font-semibold text-slate-400 mb-2">
+            মেনু ও ড্যাশবোর্ড
+          </div>
+
+          <nav className="space-y-1">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeMenu === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveMenu(item.id)}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                    isActive
+                      ? "bg-[#00897B] text-white shadow-md shadow-teal-900/30"
+                      : "text-slate-300 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-slate-400"}`} />
+                    <span>{item.label}</span>
+                  </div>
+
+                  {isActive ? (
+                    <ChevronRight className="w-4 h-4 text-white" />
+                  ) : null}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
       </div>
 
-      {/* Bottom Section: AI Assistant Card & User Profile */}
-      <div className="p-4 space-y-4">
-        {/* AI Assistant Banner */}
-        <div
-          onClick={onOpenAiModal}
-          className="bg-linear-to-b from-[#161D38] to-[#10172E] border border-indigo-500/20 rounded-2xl p-3.5 cursor-pointer hover:border-indigo-500/40 transition-all group"
+      {/* Bottom Signout Button */}
+      <div className="pt-3 border-t border-slate-700/60">
+        <button
+          onClick={onLogout}
+          className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-slate-400 hover:text-red-400 transition-colors"
         >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-6 h-6 rounded-lg bg-indigo-600/30 flex items-center justify-center text-indigo-400">
-              <Sparkles className="w-3.5 h-3.5" />
-            </div>
-            <span className="text-white text-xs font-semibold">AI Assistant</span>
-            <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[9px] font-bold px-1.5 py-0.2 rounded-md">
-              Beta
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-400 leading-snug">
-            Get smart suggestions for faster resolution.
-          </p>
-        </div>
-
-        {/* User Profile Footer */}
-        <div
-          onClick={onOpenPersonaModal}
-          className="flex items-center justify-between pt-2 border-t border-slate-800/80 cursor-pointer hover:opacity-90 transition-opacity"
-          title="Click to switch test persona"
-        >
-          <div className="flex items-center gap-3">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150"
-              alt={currentUser?.name || "Rafsan Ahmed"}
-              className="w-9 h-9 rounded-full object-cover ring-2 ring-blue-500/30"
-            />
-            <div>
-              <div className="text-white text-xs font-semibold leading-tight">
-                {currentUser?.name || "Rafsan Ahmed"}
-              </div>
-              <div className="text-[11px] text-slate-400 capitalize">
-                {currentUser?.role ? currentUser.role.toLowerCase() : "Admin"}
-              </div>
-            </div>
-          </div>
-          <ChevronDown className="w-4 h-4 text-slate-500" />
-        </div>
+          <LogOut className="w-4 h-4" />
+          <span>পোর্টাল হতে সাইন আউট</span>
+        </button>
       </div>
     </aside>
   );
 };
+

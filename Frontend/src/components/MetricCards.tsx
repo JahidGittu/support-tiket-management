@@ -1,86 +1,62 @@
 import React from "react";
-import { Ticket, Hourglass, CheckCircle2, User, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Ticket, Hourglass, CheckCircle2, AlertTriangle } from "lucide-react";
 
 interface MetricCardsProps {
   totalCount?: number;
   openCount?: number;
+  inProgressCount?: number;
   resolvedCount?: number;
-  avgResponseTime?: string;
 }
 
 export const MetricCards: React.FC<MetricCardsProps> = ({
   totalCount = 124,
   openCount = 48,
-  resolvedCount = 68,
-  avgResponseTime = "2h 14m",
+  inProgressCount = 32,
+  resolvedCount = 36,
 }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-      {/* Total Tickets */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
-        <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#1D68FE] flex items-center justify-center mb-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex items-center justify-between">
+        <div>
+          <span className="text-xs font-semibold text-slate-500">মোট টিকিট সংখ্যা</span>
+          <div className="text-2xl font-black text-slate-900 mt-1">{totalCount}</div>
+          <span className="text-[11px] text-emerald-600 font-semibold">↑ ১২% এই সপ্তাহে</span>
+        </div>
+        <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#1D68FE] flex items-center justify-center">
           <Ticket className="w-5 h-5 stroke-[2.2]" />
         </div>
-        <div>
-          <span className="text-xs font-medium text-slate-500">Total Tickets</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold text-slate-900 tracking-tight">{totalCount}</span>
-            <span className="inline-flex items-center text-xs font-semibold text-emerald-600">
-              <ArrowUpRight className="w-3.5 h-3.5" /> 12%
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">vs. last 7 days</p>
-        </div>
       </div>
 
-      {/* Open Tickets */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
-        <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
+      <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex items-center justify-between">
+        <div>
+          <span className="text-xs font-semibold text-slate-500">অ্যাকশন প্রয়োজন (ওপেন)</span>
+          <div className="text-2xl font-black text-blue-600 mt-1">{openCount}</div>
+          <span className="text-[11px] text-slate-400 font-medium">জরুরি রিভিউ সাপেক্ষ</span>
+        </div>
+        <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
           <Hourglass className="w-5 h-5 stroke-[2.2]" />
         </div>
+      </div>
+
+      <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex items-center justify-between">
         <div>
-          <span className="text-xs font-medium text-slate-500">Open Tickets</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold text-slate-900 tracking-tight">{openCount}</span>
-            <span className="inline-flex items-center text-xs font-semibold text-emerald-600">
-              <ArrowDownRight className="w-3.5 h-3.5" /> 8%
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">vs. last 7 days</p>
+          <span className="text-xs font-semibold text-slate-500">চলমান সমাধান (প্রোগ্রেস)</span>
+          <div className="text-2xl font-black text-[#8B5CF6] mt-1">{inProgressCount}</div>
+          <span className="text-[11px] text-slate-400 font-medium">এজেন্টরা কাজ করছে</span>
+        </div>
+        <div className="w-11 h-11 rounded-xl bg-purple-50 text-[#8B5CF6] flex items-center justify-center">
+          <AlertTriangle className="w-5 h-5 stroke-[2.2]" />
         </div>
       </div>
 
-      {/* Resolved Tickets */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
-        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+      <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex items-center justify-between">
+        <div>
+          <span className="text-xs font-semibold text-slate-500">সমাধান সম্পন্ন</span>
+          <div className="text-2xl font-black text-emerald-600 mt-1">{resolvedCount}</div>
+          <span className="text-[11px] text-emerald-600 font-semibold">৯৮% সন্তুষ্টি রেট</span>
+        </div>
+        <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
           <CheckCircle2 className="w-5 h-5 stroke-[2.2]" />
-        </div>
-        <div>
-          <span className="text-xs font-medium text-slate-500">Resolved Tickets</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold text-slate-900 tracking-tight">{resolvedCount}</span>
-            <span className="inline-flex items-center text-xs font-semibold text-emerald-600">
-              <ArrowUpRight className="w-3.5 h-3.5" /> 18%
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">vs. last 7 days</p>
-        </div>
-      </div>
-
-      {/* Avg. Response Time */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
-        <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-4">
-          <User className="w-5 h-5 stroke-[2.2]" />
-        </div>
-        <div>
-          <span className="text-xs font-medium text-slate-500">Avg. Response Time</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold text-slate-900 tracking-tight">{avgResponseTime}</span>
-            <span className="inline-flex items-center text-xs font-semibold text-emerald-600">
-              <ArrowDownRight className="w-3.5 h-3.5" /> 32%
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">vs. last 7 days</p>
         </div>
       </div>
     </div>
