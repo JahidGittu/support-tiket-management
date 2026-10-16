@@ -55,7 +55,14 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   try {
     const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    let user = await prisma.user.findUnique({ where: { email } });
+    if (!user && email.endsWith("@resolvedesk.com")) {
+      const altEmail = email.replace("@resolvedesk.com", "@supportticket.com");
+      user = await prisma.user.findUnique({ where: { email: altEmail } });
+    } else if (!user && email.endsWith("@supportticket.com")) {
+      const altEmail = email.replace("@supportticket.com", "@resolvedesk.com");
+      user = await prisma.user.findUnique({ where: { email: altEmail } });
+    }
     if (!user) {
       return res.status(401).json({
         success: false,

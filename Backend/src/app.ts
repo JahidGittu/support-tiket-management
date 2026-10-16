@@ -16,7 +16,7 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
   res.status(200).json({
-    name: "ResolveDesk AI - Ticket Management API",
+    name: "Support Ticket Management API",
     status: "active",
     health: "/api/v1/health",
   });
@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
 app.get("/api/v1/health", (req, res) => {
   res.status(200).json({
     status: "ok",
-    service: "ResolveDesk AI Backend",
+    service: "Support Ticket Management Backend",
     timestamp: new Date().toISOString(),
   });
 });

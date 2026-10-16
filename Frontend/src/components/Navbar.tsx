@@ -36,9 +36,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-lg tracking-tight text-slate-900">ResolveDesk</span>
+              <span className="font-bold text-lg tracking-tight text-slate-900">Support Ticket Management</span>
               <span className="bg-indigo-50 text-indigo-700 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-indigo-150 uppercase tracking-wider">
-                AI Powered
+                System
               </span>
             </div>
             <p className="text-xs text-slate-500 hidden sm:block">Smart Support & Automated Triage</p>
@@ -71,40 +71,40 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </div>
                   <button
                     onClick={() => {
-                      onSwitchUser("admin@resolvedesk.com");
+                      onSwitchUser("admin@supportticket.com");
                       setDropdownOpen(false);
                     }}
                     className="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 flex items-center justify-between"
                   >
                     <div>
                       <div className="font-semibold text-slate-800">System Admin</div>
-                      <div className="text-slate-400 text-[11px]">admin@resolvedesk.com</div>
+                      <div className="text-slate-400 text-[11px]">admin@supportticket.com</div>
                     </div>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 font-medium">ADMIN</span>
                   </button>
                   <button
                     onClick={() => {
-                      onSwitchUser("agent@resolvedesk.com");
+                      onSwitchUser("agent@supportticket.com");
                       setDropdownOpen(false);
                     }}
                     className="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 flex items-center justify-between"
                   >
                     <div>
                       <div className="font-semibold text-slate-800">Support Agent Rahat</div>
-                      <div className="text-slate-400 text-[11px]">agent@resolvedesk.com</div>
+                      <div className="text-slate-400 text-[11px]">agent@supportticket.com</div>
                     </div>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-medium">AGENT</span>
                   </button>
                   <button
                     onClick={() => {
-                      onSwitchUser("user@resolvedesk.com");
+                      onSwitchUser("arif@example.com");
                       setDropdownOpen(false);
                     }}
                     className="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 flex items-center justify-between"
                   >
                     <div>
-                      <div className="font-semibold text-slate-800">Tanvir Hasan</div>
-                      <div className="text-slate-400 text-[11px]">user@resolvedesk.com</div>
+                      <div className="font-semibold text-slate-800">Arif Rahman</div>
+                      <div className="text-slate-400 text-[11px]">arif@example.com</div>
                     </div>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-medium">CUSTOMER</span>
                   </button>

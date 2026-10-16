@@ -142,10 +142,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
         <div>
           <h1 className="text-white text-base font-extrabold tracking-wider">
-            RESOLVEDESK ERP
+            SUPPORT TICKET MANAGEMENT
           </h1>
           <p className="text-[11px] text-slate-400 font-medium">
-            Central Control Panel & Ticket Triage
+            Staff ERP & Smart Queue Manager
           </p>
         </div>
       </div>
@@ -192,14 +192,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
               <button
                 onClick={() => {
-                  onSwitchUser("admin@resolvedesk.com");
+                  onSwitchUser("admin@supportticket.com");
                   setUserMenuOpen(false);
                 }}
                 className="w-full text-left px-4 py-2.5 hover:bg-slate-700/40 flex items-center justify-between transition-colors"
               >
                 <div>
                   <div className="font-bold text-white">Rafsan Ahmed</div>
-                  <div className="text-[10px] text-slate-400">admin@resolvedesk.com</div>
+                  <div className="text-[10px] text-slate-400">admin@supportticket.com</div>
                 </div>
                 <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-purple-900/60 text-purple-300 border border-purple-700">
                   ADMIN
@@ -208,14 +208,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
               <button
                 onClick={() => {
-                  onSwitchUser("agent@resolvedesk.com");
+                  onSwitchUser("agent@supportticket.com");
                   setUserMenuOpen(false);
                 }}
                 className="w-full text-left px-4 py-2.5 hover:bg-slate-700/40 flex items-center justify-between transition-colors"
               >
                 <div>
                   <div className="font-bold text-white">Rahat Ahmed</div>
-                  <div className="text-[10px] text-slate-400">agent@resolvedesk.com</div>
+                  <div className="text-[10px] text-slate-400">agent@supportticket.com</div>
                 </div>
                 <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-900/60 text-blue-300 border border-blue-700">
                   AGENT
@@ -353,7 +353,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
               {/* Footer */}
               <div className="p-2.5 bg-[#1C202B] border-t border-slate-700/80 text-center">
                 <span className="text-[10px] text-slate-400 font-medium">
-                  Live Event Feed • Powered by ResolveDesk Engine
+                  Live Event Feed • Powered by Support Ticket Engine
                 </span>
               </div>
             </div>

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { createTicketSchema, updateStatusSchema } from "../validators/ticketValidators";
 import { analyzeTicketWithAi } from "../services/geminiService";
 
-describe("ResolveDesk AI - Ticket Workflow & Business Logic Tests", () => {
+describe("Support Ticket Management - Ticket Workflow & Business Logic Tests", () => {
   describe("Zod Validation Schemas", () => {
     it("should accept valid ticket creation payload", () => {
       const payload = {

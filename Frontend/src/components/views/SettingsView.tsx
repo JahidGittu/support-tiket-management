@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Settings, Sparkles, Bell, Shield, Sliders, CheckCircle2 } from "lucide-react";
 
 export const SettingsView: React.FC = () => {
-  const [deskName, setDeskName] = useState("ResolveDesk ERP");
-  const [supportEmail, setSupportEmail] = useState("support@resolvedesk.com");
+  const [deskName, setDeskName] = useState("Support Ticket Management");
+  const [supportEmail, setSupportEmail] = useState("support@supportticket.com");
   const [autoTriageEnabled, setAutoTriageEnabled] = useState(true);
   const [autoDraftEnabled, setAutoDraftEnabled] = useState(true);
   const [confidence, setConfidence] = useState(85);

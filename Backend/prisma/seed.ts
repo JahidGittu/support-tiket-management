@@ -15,7 +15,7 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       name: "Rafsan Ahmed",
-      email: "admin@resolvedesk.com",
+      email: "admin@supportticket.com",
       password: hashedPassword,
       role: "ADMIN",
       dailyCapacity: 5,
@@ -27,7 +27,7 @@ async function main() {
   const agent1 = await prisma.user.create({
     data: {
       name: "Rahat Ahmed",
-      email: "agent@resolvedesk.com",
+      email: "agent@supportticket.com",
       password: hashedPassword,
       role: "AGENT",
       dailyCapacity: 5,
@@ -39,7 +39,7 @@ async function main() {
   const agent2 = await prisma.user.create({
     data: {
       name: "Farhan Kabir",
-      email: "farhan@resolvedesk.com",
+      email: "farhan@supportticket.com",
       password: hashedPassword,
       role: "AGENT",
       dailyCapacity: 5,
@@ -51,7 +51,7 @@ async function main() {
   const agent3 = await prisma.user.create({
     data: {
       name: "Riya Sultana",
-      email: "riya@resolvedesk.com",
+      email: "riya@supportticket.com",
       password: hashedPassword,
       role: "AGENT",
       dailyCapacity: 5,

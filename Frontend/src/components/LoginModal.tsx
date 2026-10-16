@@ -11,7 +11,7 @@ interface LoginModalProps {
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onSuccess }) => {
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("admin@resolvedesk.com");
+  const [email, setEmail] = useState("admin@supportticket.com");
   const [password, setPassword] = useState("password123");
   const [role, setRole] = useState("CUSTOMER");
   const [loading, setLoading] = useState(false);
@@ -63,10 +63,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onSuccess }) => 
             <Sparkles className="w-6 h-6" />
           </div>
           <h2 className="text-xl font-bold text-slate-900">
-            {isRegister ? "Create Account" : "Sign In to ResolveDesk AI"}
+            {isRegister ? "Create Account" : "Sign In to Support Ticket Management"}
           </h2>
           <p className="text-xs text-slate-500">
-            Enterprise Issue Resolution & Automated Ticket Triage
+            Customer Support & Smart Queue Management System
           </p>
         </div>
 
@@ -79,7 +79,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onSuccess }) => 
             <div className="grid grid-cols-3 gap-1.5">
               <button
                 type="button"
-                onClick={() => handleQuickLogin("admin@resolvedesk.com")}
+                onClick={() => handleQuickLogin("admin@supportticket.com")}
                 disabled={loading}
                 className="p-2 text-left bg-white hover:bg-purple-50 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors flex flex-col items-center text-center"
               >
@@ -90,7 +90,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onSuccess }) => 
 
               <button
                 type="button"
-                onClick={() => handleQuickLogin("agent@resolvedesk.com")}
+                onClick={() => handleQuickLogin("agent@supportticket.com")}
                 disabled={loading}
                 className="p-2 text-left bg-white hover:bg-blue-50 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors flex flex-col items-center text-center"
               >
@@ -101,7 +101,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onSuccess }) => 
 
               <button
                 type="button"
-                onClick={() => handleQuickLogin("user@resolvedesk.com")}
+                onClick={() => handleQuickLogin("arif@example.com")}
                 disabled={loading}
                 className="p-2 text-left bg-white hover:bg-emerald-50 rounded-lg border border-slate-200 hover:border-emerald-300 transition-colors flex flex-col items-center text-center"
               >
@@ -141,7 +141,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onSuccess }) => 
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="e.g. admin@resolvedesk.com"
+              placeholder="e.g. admin@supportticket.com"
               className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               required
             />

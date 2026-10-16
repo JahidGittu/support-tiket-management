@@ -113,13 +113,14 @@ export function App() {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem("resolvedesk_token");
+      const token = localStorage.getItem("support_ticket_token") || localStorage.getItem("resolvedesk_token");
       if (token) {
         try {
           const user = await api.getMe();
           setCurrentUser(user);
           loadStaff();
         } catch {
+          localStorage.removeItem("support_ticket_token");
           localStorage.removeItem("resolvedesk_token");
           setCurrentUser(null);
         }
@@ -133,6 +134,7 @@ export function App() {
 
     const handleUnauthorized = () => {
       setCurrentUser(null);
+      localStorage.removeItem("support_ticket_token");
       localStorage.removeItem("resolvedesk_token");
     };
     window.addEventListener("auth_unauthorized", handleUnauthorized);
@@ -180,7 +182,7 @@ export function App() {
   const handleSwitchUser = async (email: string) => {
     try {
       const { user, token } = await api.login(email, "password123");
-      localStorage.setItem("resolvedesk_token", token);
+      localStorage.setItem("support_ticket_token", token);
       setCurrentUser(user);
       loadStaff();
       loadQueueData();
@@ -190,6 +192,7 @@ export function App() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("support_ticket_token");
     localStorage.removeItem("resolvedesk_token");
     setCurrentUser(null);
     setTickets([]);

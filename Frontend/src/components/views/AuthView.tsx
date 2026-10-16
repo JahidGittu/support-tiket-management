@@ -41,6 +41,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
     setErrorMessage(null);
     try {
       const { user, token } = await api.login(demoEmail, "password123");
+      localStorage.setItem("support_ticket_token", token);
       localStorage.setItem("resolvedesk_token", token);
       onAuthSuccess(user);
     } catch (err: any) {
@@ -63,6 +64,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
           return;
         }
         const { user, token } = await api.login(email.trim(), password);
+        localStorage.setItem("support_ticket_token", token);
         localStorage.setItem("resolvedesk_token", token);
         onAuthSuccess(user);
       } else {
@@ -72,6 +74,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
           return;
         }
         const { user, token } = await api.register(name.trim(), email.trim(), password, role);
+        localStorage.setItem("support_ticket_token", token);
         localStorage.setItem("resolvedesk_token", token);
         onAuthSuccess(user);
       }
@@ -91,10 +94,10 @@ export const AuthView: React.FC<AuthViewProps> = ({
             <Building2 className="w-7 h-7 stroke-[2.2]" />
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            RESOLVEDESK <span className="text-emerald-600 font-extrabold">AI</span>
+            SUPPORT TICKET <span className="text-emerald-600 font-extrabold">MANAGEMENT</span>
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-1">
-            Central Customer Support & Smart Ticket Triage Portal
+            Customer Support & Smart Queue Management System
           </p>
         </div>
 
@@ -160,7 +163,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => handleDemoLogin("agent@resolvedesk.com")}
+                    onClick={() => handleDemoLogin("agent@supportticket.com")}
                     disabled={loading}
                     className="p-2 bg-white hover:bg-blue-50 rounded-xl border border-slate-200 hover:border-blue-300 transition-all flex flex-col items-center text-center cursor-pointer group"
                   >
@@ -171,7 +174,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => handleDemoLogin("admin@resolvedesk.com")}
+                    onClick={() => handleDemoLogin("admin@supportticket.com")}
                     disabled={loading}
                     className="p-2 bg-white hover:bg-purple-50 rounded-xl border border-slate-200 hover:border-purple-300 transition-all flex flex-col items-center text-center cursor-pointer group"
                   >
@@ -300,7 +303,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
         {/* Footer Info */}
         <div className="text-center mt-6 text-[11px] text-slate-400 space-y-1">
-          <p>ResolveDesk AI — Protected by JWT Authentication & Neon PostgreSQL</p>
+          <p>Support Ticket Management — Protected by JWT Authentication & Neon PostgreSQL</p>
           <p>© 2026 JahidGittu / NT Tech Innovation Assessment</p>
         </div>
       </div>

@@ -105,10 +105,10 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
           {/* Logo */}
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-black text-lg shadow-sm shadow-emerald-500/20">
-              M
+              S
             </div>
             <span className="font-extrabold text-slate-900 tracking-tight text-sm hidden sm:inline">
-              SupportDesk <span className="text-emerald-600 font-normal">Portal</span>
+              Support Ticket <span className="text-emerald-600 font-normal">Management</span>
             </span>
           </div>
 
@@ -190,7 +190,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
                   </div>
                   <button
                     onClick={() => {
-                      onSwitchUser("user@resolvedesk.com");
+                      onSwitchUser("arif@example.com");
                       setProfileDropdown(false);
                     }}
                     className="w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg flex items-center justify-between"
@@ -200,7 +200,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
                   </button>
                   <button
                     onClick={() => {
-                      onSwitchUser("admin@resolvedesk.com");
+                      onSwitchUser("admin@supportticket.com");
                       setProfileDropdown(false);
                     }}
                     className="w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg flex items-center justify-between"
@@ -649,7 +649,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
           <a href="#" className="hover:text-slate-600">Legal &amp; Privacy Policy</a>
         </div>
         <div>
-          Copyrights © 2026 ResolveDesk AI &amp; DigitalHeaps.
+          Copyrights © 2026 Support Ticket Management &amp; DigitalHeaps.
         </div>
       </footer>
     </div>

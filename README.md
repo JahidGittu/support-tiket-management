@@ -1,8 +1,8 @@
-# 🚀 ResolveDesk AI — AI-Powered Ticket & Issue Triage System
+# 🚀 Support Ticket Management System — Intelligent Customer Support & Smart Queue
 
 An end-to-end full-stack customer support and issue resolution platform.
 
-ResolveDesk AI automates issue triage by analyzing user-submitted support tickets using **Google Gemini AI** to predict categories, urgency levels, and generate professional response drafts for support agents.
+Support Ticket Management automates issue triage by analyzing user-submitted support tickets using **Google Gemini AI** to predict categories, urgency levels, and generate professional response drafts for support agents.
 
 ---
 
@@ -63,9 +63,9 @@ npm run dev      # Starts client on http://localhost:5173
 
 | Role | Email | Password |
 | :--- | :--- | :--- |
-| **Admin** | `admin@resolvedesk.com` | `password123` |
-| **Support Agent** | `agent@resolvedesk.com` | `password123` |
-| **Customer** | `user@resolvedesk.com` | `password123` |
+| **Admin** | `admin@supportticket.com` | `password123` |
+| **Support Agent** | `agent@supportticket.com` | `password123` |
+| **Customer** | `arif@example.com` | `password123` |
 
 ---
 

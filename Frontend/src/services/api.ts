@@ -22,7 +22,7 @@ export const privateAxios = axios.create({
 // Request Interceptor: Attach token to headers
 privateAxios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("resolvedesk_token");
+    const token = localStorage.getItem("support_ticket_token") || localStorage.getItem("resolvedesk_token");
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -36,6 +36,7 @@ privateAxios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
+      localStorage.removeItem("support_ticket_token");
       localStorage.removeItem("resolvedesk_token");
       // Optional: dispatch event so App can detect session expiry
       window.dispatchEvent(new Event("auth_unauthorized"));

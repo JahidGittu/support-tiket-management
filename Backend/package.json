@@ -1,7 +1,7 @@
 {
-  "name": "resolvedesk-backend",
+  "name": "support-ticket-management-backend",
   "version": "1.0.0",
-  "description": "Backend API for ResolveDesk AI - AI-Powered Support Ticket Management",
+  "description": "Backend API for Support Ticket Management System",
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
@@ -22,7 +22,7 @@
     "postgresql",
     "ai"
   ],
-  "author": "ResolveDesk Team",
+  "author": "Support Ticket Management Team",
   "license": "ISC",
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
