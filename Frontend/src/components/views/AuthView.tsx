@@ -288,14 +288,14 @@ export const AuthView: React.FC<AuthViewProps> = ({
               <div
                 className={`transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden ${
                   activeTab === "register"
-                    ? "max-h-36 opacity-100 pt-1"
+                    ? "max-h-24 opacity-100 pt-1"
                     : "max-h-0 opacity-0 pointer-events-none pt-0"
                 }`}
               >
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
                   Account Type (Role)
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1.5">
                   {[
                     { id: "CUSTOMER", label: "Customer", desc: "User Portal" },
                     { id: "AGENT", label: "Agent", desc: "Support Staff" },
@@ -305,14 +305,14 @@ export const AuthView: React.FC<AuthViewProps> = ({
                       key={item.id}
                       type="button"
                       onClick={() => setRole(item.id as Role)}
-                      className={`p-2.5 text-center rounded-xl border transition-all duration-200 cursor-pointer ${
+                      className={`py-1.5 px-2 text-center rounded-lg border transition-all duration-150 cursor-pointer ${
                         role === item.id
-                          ? "border-emerald-500 bg-emerald-50/80 text-emerald-800 font-bold shadow-2xs ring-2 ring-emerald-500/20 scale-[1.02]"
-                          : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:border-slate-300"
+                          ? "border-emerald-500 bg-emerald-50/90 text-emerald-800 font-bold shadow-2xs ring-1.5 ring-emerald-500/20"
+                          : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
                       }`}
                     >
-                      <div className="text-xs font-bold">{item.label}</div>
-                      <div className="text-[10px] text-slate-400 mt-0.5">{item.desc}</div>
+                      <div className="text-[11px] font-bold leading-tight">{item.label}</div>
+                      <div className="text-[9px] text-slate-400 leading-tight mt-0.5">{item.desc}</div>
                     </button>
                   ))}
                 </div>

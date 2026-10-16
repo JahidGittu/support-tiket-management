@@ -112,7 +112,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
             </span>
           </div>
 
-          {/* Search bar */}
+          {/* Help Center search bar - Commented out because no external website/app exists
           <div className="relative flex-1 max-w-md hidden md:block">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
@@ -121,6 +121,7 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
               className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200/90 rounded-full text-xs text-slate-700 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
             />
           </div>
+          */}
         </div>
 
         {/* Right Action Controls */}
@@ -135,17 +136,17 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
             <ChevronDown className="w-3 h-3 ml-0.5 opacity-80" />
           </button>
 
-          {/* Envelope Icon with Green Dot */}
+          {/* Dummy Notification Icons - Commented out per user request
           <div className="relative cursor-pointer text-slate-500 hover:text-slate-800 p-1.5">
             <Mail className="w-4 h-4" />
             <span className="w-2 h-2 rounded-full bg-emerald-500 absolute top-1 right-1 ring-2 ring-white"></span>
           </div>
 
-          {/* Bell Icon with Orange Dot */}
           <div className="relative cursor-pointer text-slate-500 hover:text-slate-800 p-1.5">
             <Bell className="w-4 h-4" />
             <span className="w-2 h-2 rounded-full bg-amber-500 absolute top-1 right-1 ring-2 ring-white"></span>
           </div>
+          */}
 
           {/* User Profile Pill */}
           <div className="relative">
@@ -225,9 +226,9 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
         </div>
       </header>
 
-      {/* 2. BODY CONTENT (Left Icon Sidebar + Main Content + Right Sidebar) */}
+      {/* 2. BODY CONTENT (Main Content Centered, Sidebars Commented Out) */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Thin Icon Navigation Bar */}
+        {/* Left Thin Icon Navigation Bar - Commented out because no dedicated app/website is needed
         <aside className="w-16 bg-white border-r border-slate-200/90 flex flex-col items-center py-6 gap-6 shrink-0 hidden sm:flex">
           <button
             onClick={onSwitchToAdmin}
@@ -242,7 +243,6 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
             className="p-2.5 rounded-xl text-emerald-600 bg-emerald-50/80 transition-colors relative"
           >
             <MessageSquare className="w-5 h-5" />
-            {/* Emerald vertical active indicator on right border */}
             <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-emerald-500 rounded-l"></span>
           </button>
 
@@ -276,66 +276,83 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
             <BarChart2 className="w-5 h-5" />
           </button>
         </aside>
+        */}
 
         {/* Center Main Ticket & Thread View */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8">
-          <div className="max-w-4xl mx-auto space-y-6">
+          <div className="max-w-3xl mx-auto space-y-6">
+            {/* Customer Tickets Quick Switcher (If Customer has multiple tickets) */}
+            {customerTickets.length > 1 && (
+              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                <span className="text-[11px] font-bold text-slate-500 shrink-0 uppercase tracking-wider">
+                  Your Tickets ({customerTickets.length}):
+                </span>
+                {customerTickets.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setSelectedTicketId(t.id)}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer ${
+                      t.id === activeTicket?.id
+                        ? "bg-emerald-600 text-white shadow-2xs"
+                        : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    #TKT-{t.id.slice(0, 6)}: {t.title.slice(0, 24)}...
+                  </button>
+                ))}
+              </div>
+            )}
+
             {activeTicket ? (
               <>
-                {/* Breadcrumbs & Action Buttons */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="text-xs font-medium text-slate-500">
-                    <span>All Categories</span>
-                    <span className="mx-2 text-slate-300">/</span>
-                    <span className="text-slate-700 font-semibold">{activeTicket.category}</span>
-                    <span className="mx-2 text-slate-300">/</span>
-                    <span className="text-slate-400">#TKT-{activeTicket.id.slice(0, 6)}</span>
+                {/* Clean Ticket Header & Action Buttons */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/60">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-slate-500">
+                        #TKT-{activeTicket.id.slice(0, 6)}
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">
+                        {activeTicket.category}
+                      </span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                        activeTicket.status === "RESOLVED"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : activeTicket.status === "IN_PROGRESS"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}>
+                        {activeTicket.status}
+                      </span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                        activeTicket.priority === "URGENT" || activeTicket.priority === "HIGH"
+                          ? "bg-rose-100 text-rose-700"
+                          : "bg-slate-100 text-slate-600"
+                      }`}>
+                        {activeTicket.priority}
+                      </span>
+                    </div>
+
+                    <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
+                      {activeTicket.title}
+                    </h1>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <a
                       href="#reply-box"
-                      className="px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs"
+                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                     >
                       <ReplyIcon className="w-3.5 h-3.5" />
                       <span>Reply</span>
                     </a>
                     <button
-                      onClick={() => onOpenCreate()}
-                      className="px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                      <span>Edit Topic</span>
-                    </button>
-                    <button
                       onClick={() => onRefreshTicket(activeTicket.id)}
-                      className="px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs"
+                      className="px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       <span>Refresh</span>
                     </button>
-                  </div>
-                </div>
-
-                {/* Ticket Title & Engagement Row */}
-                <div>
-                  <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
-                    {activeTicket.title}
-                  </h1>
-
-                  <div className="flex items-center gap-4 text-xs text-slate-500 mt-2">
-                    <span className="flex items-center gap-1 font-medium">
-                      <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
-                      {activeTicket.comments?.length || 0} Replies
-                    </span>
-                    <span className="flex items-center gap-1 font-medium">
-                      <ThumbsUp className="w-3.5 h-3.5 text-slate-400" />
-                      {likesCount} People like this
-                    </span>
-                    <span className="flex items-center gap-1 font-medium">
-                      <Eye className="w-3.5 h-3.5 text-slate-400" />
-                      24 Views
-                    </span>
                   </div>
                 </div>
 
@@ -532,9 +549,8 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
           </div>
         </main>
 
-        {/* 4. RIGHT SIDEBAR WIDGET (Matching Screenshot right column) */}
+        {/* 4. RIGHT SIDEBAR WIDGET - Commented out per user request because no dedicated website/app widgets are needed
         <aside className="w-72 bg-white border-l border-slate-200/90 p-6 space-y-6 hidden lg:block overflow-y-auto">
-          {/* Status & Pin Indicators */}
           <div className="space-y-3 pb-5 border-b border-slate-100 text-xs">
             <div className="flex items-center gap-2 text-slate-600">
               <Lock className="w-4 h-4 text-slate-400" />
@@ -551,7 +567,6 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
             </div>
           </div>
 
-          {/* Interactive Toggle Switch */}
           <div className="space-y-2 pb-5 border-b border-slate-100">
             <div className="text-xs font-bold text-slate-800">
               Notify me on reply?
@@ -574,7 +589,6 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
             </div>
           </div>
 
-          {/* Participating Agents & Customers */}
           <div className="space-y-3 pb-5 border-b border-slate-100">
             <div className="text-xs font-bold text-slate-800">
               Participating in this Ticket:
@@ -592,7 +606,6 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
             </div>
           </div>
 
-          {/* Customer's Other Tickets Directory */}
           <div className="space-y-3">
             <div className="text-xs font-bold text-slate-800 uppercase tracking-wider">
               Your Support Tickets ({customerTickets.length})
@@ -628,7 +641,6 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
             </div>
           </div>
 
-          {/* Quick Staff ERP Link */}
           <div className="pt-2">
             <button
               onClick={onSwitchToAdmin}
@@ -639,17 +651,20 @@ export const CustomerPortalView: React.FC<CustomerPortalViewProps> = ({
             </button>
           </div>
         </aside>
+        */}
       </div>
 
-      {/* 5. MINIMALIST FOOTER (Matching Screenshot) */}
-      <footer className="bg-white border-t border-slate-200/80 py-4 px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+      {/* 5. MINIMALIST FOOTER */}
+      <footer className="bg-white border-t border-slate-200/80 py-4 px-8 flex items-center justify-center text-xs text-slate-400">
+        {/* Website Links - Commented out per user request
         <div className="flex items-center gap-4">
           <a href="#" className="hover:text-slate-600">Careers</a>
           <a href="#" className="hover:text-slate-600">Support</a>
           <a href="#" className="hover:text-slate-600">Legal &amp; Privacy Policy</a>
         </div>
-        <div>
-          Copyrights © 2026 Support Ticket Management &amp; DigitalHeaps.
+        */}
+        <div className="text-center text-slate-400 text-xs">
+          Support Ticket Management — Customer Support Portal
         </div>
       </footer>
     </div>
