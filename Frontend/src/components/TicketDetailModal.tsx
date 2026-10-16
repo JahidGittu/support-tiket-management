@@ -6,11 +6,9 @@ import {
   Sparkles,
   Send,
   Lock,
-  User as UserIcon,
   Clock,
   ArrowRight,
   Loader2,
-  CheckCircle2,
 } from "lucide-react";
 
 interface TicketDetailModalProps {
@@ -89,16 +87,16 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-3xl w-full border border-slate-200 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-3xl max-w-3xl w-full border border-slate-200/80 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
+        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-semibold text-slate-500">#{ticket.id.slice(0, 8)}</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+              <span className="text-xs font-mono font-medium text-slate-400">#TKT-{ticket.id.slice(0, 6)}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#1D68FE] border border-blue-100">
                 {ticket.category}
               </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-100">
                 {ticket.priority}
               </span>
             </div>
@@ -106,18 +104,17 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content Scrollable Body */}
+        {/* Content Body */}
         <div className="p-6 overflow-y-auto space-y-6">
-          {/* Quick Management Toolbar for Staff */}
+          {/* Quick Management Toolbar */}
           {canManageStatus && (
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
-              {/* Status Change Buttons */}
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-slate-600">Update Status:</span>
                 {(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"] as TicketStatus[]).map((st) => (
@@ -125,18 +122,17 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                     key={st}
                     onClick={() => handleStatusChange(st)}
                     disabled={updatingStatus || ticket.status === st}
-                    className={`px-2.5 py-1 rounded-md font-semibold transition-colors ${
+                    className={`px-3 py-1 rounded-lg font-semibold transition-all ${
                       ticket.status === st
-                        ? "bg-slate-900 text-white"
-                        : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+                        ? "bg-[#1D68FE] text-white shadow-xs"
+                        : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
                     }`}
                   >
-                    {st}
+                    {st === "IN_PROGRESS" ? "In Progress" : st.charAt(0) + st.slice(1).toLowerCase()}
                   </button>
                 ))}
               </div>
 
-              {/* Agent Assignment for Admin */}
               {canAssign && (
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-slate-600">Assign Agent:</span>
@@ -144,7 +140,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                     value={ticket.assignedToId || "UNASSIGNED"}
                     onChange={(e) => handleAssignAgent(e.target.value)}
                     disabled={assigningAgent}
-                    className="bg-white border border-slate-200 rounded-md px-2 py-1 font-medium text-slate-700 focus:outline-hidden"
+                    className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 font-medium text-slate-700"
                   >
                     <option value="UNASSIGNED">Unassigned</option>
                     {staffList.map((staff) => (
@@ -159,28 +155,28 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
           )}
 
           {/* Original Issue Description */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <div className="bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80 space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-500">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700">
+                <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 text-xs">
                   {ticket.customer?.name?.[0] || "C"}
                 </div>
                 <span className="font-semibold text-slate-800">{ticket.customer?.name}</span>
                 <span className="text-[11px] text-slate-400">({ticket.customer?.email})</span>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 text-[11px] text-slate-400">
                 <Clock className="w-3.5 h-3.5" />
                 <span>{new Date(ticket.createdAt).toLocaleString()}</span>
               </div>
             </div>
-            <p className="text-sm text-slate-800 whitespace-pre-wrap leading-relaxed pt-1">
+            <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed pt-1">
               {ticket.description}
             </p>
           </div>
 
           {/* AI Insights and Reply Assistant */}
           {(ticket.aiSummary || ticket.aiSuggestedReply) && (
-            <div className="p-4 bg-linear-to-r from-violet-50/80 via-indigo-50/50 to-purple-50/80 rounded-xl border border-violet-200 space-y-3">
+            <div className="p-4 bg-linear-to-r from-violet-50/80 via-indigo-50/50 to-purple-50/80 rounded-2xl border border-violet-200/80 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-violet-900">
                   <Sparkles className="w-4 h-4 text-violet-600" />
@@ -189,7 +185,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                 {ticket.aiSuggestedReply && canManageStatus && (
                   <button
                     onClick={handleUseAiReply}
-                    className="flex items-center gap-1 text-xs font-semibold text-violet-700 hover:text-violet-900 bg-white/80 hover:bg-white px-2.5 py-1 rounded-lg border border-violet-200 transition-colors shadow-2xs"
+                    className="flex items-center gap-1 text-xs font-semibold text-violet-700 hover:text-violet-900 bg-white/90 hover:bg-white px-3 py-1 rounded-lg border border-violet-200 transition-all shadow-2xs"
                   >
                     <span>Use AI Draft in Reply</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -205,7 +201,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
               )}
 
               {ticket.aiSuggestedReply && (
-                <div className="text-xs bg-white/60 p-2.5 rounded-lg border border-violet-100 text-slate-700 italic">
+                <div className="text-xs bg-white/80 p-3 rounded-xl border border-violet-100 text-slate-700 italic">
                   "{ticket.aiSuggestedReply}"
                 </div>
               )}
@@ -214,7 +210,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 
           {/* Timeline of Comments */}
           <div className="space-y-4">
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
               Discussion Timeline ({ticket.comments?.length || 0})
             </h4>
 
@@ -223,22 +219,22 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                 {ticket.comments.map((comment) => (
                   <div
                     key={comment.id}
-                    className={`p-3.5 rounded-xl border text-xs space-y-1 ${
+                    className={`p-3.5 rounded-2xl border text-xs space-y-1 ${
                       comment.isInternal
                         ? "bg-amber-50/80 border-amber-200 text-amber-950"
                         : comment.user?.role === "CUSTOMER"
-                        ? "bg-white border-slate-200 text-slate-900"
-                        : "bg-indigo-50/50 border-indigo-150 text-indigo-950"
+                        ? "bg-white border-slate-200/80 text-slate-900"
+                        : "bg-blue-50/50 border-blue-100 text-blue-950"
                     }`}
                   >
                     <div className="flex items-center justify-between font-semibold">
                       <div className="flex items-center gap-2">
                         <span>{comment.user?.name || "Support"}</span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-normal">
+                        <span className="text-[10px] px-2 py-0.2 rounded-full bg-slate-100 text-slate-600 font-normal">
                           {comment.user?.role}
                         </span>
                         {comment.isInternal && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-200 px-1.5 py-0.5 rounded">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-200 px-2 py-0.5 rounded-full">
                             <Lock className="w-3 h-3" /> Internal Note
                           </span>
                         )}
@@ -254,7 +250,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-slate-400 italic">No replies yet. Be the first to respond.</p>
+              <p className="text-xs text-slate-400 italic">No replies yet.</p>
             )}
           </div>
         </div>
@@ -267,7 +263,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
               placeholder="Write a response or solution..."
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-[#1D68FE] transition-all"
               required
             />
 
@@ -278,7 +274,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                     type="checkbox"
                     checked={isInternal}
                     onChange={(e) => setIsInternal(e.target.checked)}
-                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    className="rounded border-slate-300 text-[#1D68FE] focus:ring-blue-500"
                   />
                   <span className="font-medium flex items-center gap-1">
                     <Lock className="w-3.5 h-3.5 text-amber-600" />
@@ -292,7 +288,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
               <button
                 type="submit"
                 disabled={sendingComment || !commentText.trim()}
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg transition-colors shadow-xs shadow-indigo-100"
+                className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold text-white bg-[#1D68FE] hover:bg-blue-600 disabled:opacity-50 rounded-xl transition-all shadow-xs shadow-blue-500/20"
               >
                 {sendingComment ? (
                   <>

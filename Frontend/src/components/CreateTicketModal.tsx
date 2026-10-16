@@ -41,7 +41,7 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
       setAiResult(result);
       setCategory(result.category);
       setPriority(result.priority);
-    } catch (err: any) {
+    } catch {
       setErrorMessage("AI triage service temporarily unavailable. You can choose category manually.");
     } finally {
       setAiAnalyzing(false);
@@ -72,7 +72,6 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
         priority,
       });
 
-      // Reset form
       setTitle("");
       setDescription("");
       setAiResult(null);
@@ -90,16 +89,16 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-3xl max-w-lg w-full border border-slate-200/80 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <h3 className="text-base font-bold text-slate-900">Create New Support Ticket</h3>
-            <p className="text-xs text-slate-500">Submit an issue with automatic AI classification</p>
+            <p className="text-xs text-slate-400 mt-0.5">Submit an issue with automatic AI classification</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -116,30 +115,30 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
 
           {/* Title */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Issue Title <span className="text-red-500">*</span>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Issue Subject <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              placeholder="e.g. bKash payment deducted but subscription not active"
+              placeholder="e.g. Payment not working on checkout page"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-[#1D68FE] transition-all"
               required
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
               Detailed Description <span className="text-red-500">*</span>
             </label>
             <textarea
               rows={4}
-              placeholder="Describe what happened, error messages, transaction IDs, or steps to reproduce..."
+              placeholder="Describe what happened, error messages, or steps to reproduce..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-[#1D68FE] transition-all"
               required
             />
           </div>
@@ -150,7 +149,7 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
               type="button"
               onClick={handleAiTriage}
               disabled={aiAnalyzing}
-              className="w-full flex items-center justify-center gap-2 py-2 px-3 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-xl transition-all"
             >
               {aiAnalyzing ? (
                 <>
@@ -166,17 +165,17 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
             </button>
 
             {aiResult && (
-              <div className="mt-3 p-3 bg-linear-to-r from-violet-50 to-indigo-50 rounded-xl border border-violet-200 space-y-1.5 animate-in fade-in duration-200">
+              <div className="mt-3 p-3.5 bg-linear-to-r from-violet-50 to-indigo-50 rounded-2xl border border-violet-200 space-y-1.5 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-violet-900 flex items-center gap-1">
+                  <span className="font-semibold text-violet-900 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-violet-600" />
                     AI Triage Suggestion
                   </span>
                   <div className="flex items-center gap-1.5">
-                    <span className="bg-purple-100 text-purple-800 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                    <span className="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
                       {aiResult.category}
                     </span>
-                    <span className="bg-red-100 text-red-800 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                    <span className="bg-red-100 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
                       {aiResult.priority}
                     </span>
                   </div>
@@ -186,14 +185,14 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
             )}
           </div>
 
-          {/* Category & Priority Selector Overrides */}
+          {/* Category & Priority Selector */}
           <div className="grid grid-cols-2 gap-3 pt-1">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Category</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as Category)}
-                className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 font-medium text-slate-700"
+                className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-700"
               >
                 <option value="GENERAL">General</option>
                 <option value="BILLING">Billing</option>
@@ -203,11 +202,11 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Priority</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Priority</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as Priority)}
-                className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 font-medium text-slate-700"
+                className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-700"
               >
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -218,18 +217,18 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
+          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              className="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-xs shadow-indigo-100"
+              className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold text-white bg-[#1D68FE] hover:bg-blue-600 rounded-xl transition-all shadow-xs shadow-blue-500/20"
             >
               {submitting ? (
                 <>

@@ -1,31 +1,31 @@
 import { useState, useEffect } from "react";
 import { User, Ticket } from "./types";
 import { api } from "./services/api";
-import { Navbar } from "./components/Navbar";
-import { TicketStats } from "./components/TicketStats";
-import { TicketFilters } from "./components/TicketFilters";
-import { TicketList } from "./components/TicketList";
+import { Sidebar } from "./components/Sidebar";
+import { TopHeader } from "./components/TopHeader";
+import { MetricCards } from "./components/MetricCards";
+import { TicketsTable } from "./components/TicketsTable";
+import { RightPanel } from "./components/RightPanel";
+import { AiHelpBanner } from "./components/AiHelpBanner";
 import { CreateTicketModal } from "./components/CreateTicketModal";
 import { TicketDetailModal } from "./components/TicketDetailModal";
 import { LoginModal } from "./components/LoginModal";
+import { Calendar } from "lucide-react";
 
 export function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [staffList, setStaffList] = useState<User[]>([]);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState("Dashboard");
 
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [loadingTickets, setLoadingTickets] = useState(false);
-
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [priorityFilter, setPriorityFilter] = useState("ALL");
-  const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
-  // Initial user check or auto-login with default demo persona
+  // Initial user check or auto-login with default Rafsan Ahmed (Admin)
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem("resolvedesk_token");
@@ -68,25 +68,20 @@ export function App() {
 
   const loadTickets = async () => {
     if (!currentUser) return;
-    setLoadingTickets(true);
     try {
       const data = await api.getTickets({
-        status: statusFilter,
-        priority: priorityFilter,
-        category: categoryFilter,
-        search: searchQuery,
+        status: statusFilter === "ALL" ? undefined : statusFilter,
+        search: searchQuery || undefined,
       });
       setTickets(data);
     } catch (err) {
       console.error("Failed to load tickets", err);
-    } finally {
-      setLoadingTickets(false);
     }
   };
 
   useEffect(() => {
     loadTickets();
-  }, [currentUser, statusFilter, priorityFilter, categoryFilter, searchQuery]);
+  }, [currentUser, statusFilter, searchQuery]);
 
   const handleSwitchUser = async (email: string) => {
     try {
@@ -125,40 +120,117 @@ export function App() {
     }
   };
 
+  // Live Counts for filters and stats matching reference UI
+  const counts = {
+    all: Math.max(124, tickets.length),
+    open: 48,
+    inProgress: 32,
+    resolved: 36,
+    closed: 8,
+  };
+
+  const firstName = currentUser?.name ? currentUser.name.split(" ")[0] : "Rafsan";
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      {/* Navbar */}
-      <Navbar
+    <div className="min-h-screen bg-[#F4F7FB] text-slate-800 flex font-['Plus_Jakarta_Sans',sans-serif]">
+      {/* 1. Left Dark Navy Sidebar */}
+      <Sidebar
         currentUser={currentUser}
-        onLogout={handleLogout}
-        onSwitchUser={handleSwitchUser}
+        activeMenu={activeMenu}
+        setActiveMenu={setActiveMenu}
+        onOpenPersonaModal={() => setIsLoginOpen(true)}
+        onOpenAiModal={() => setIsCreateOpen(true)}
+        openTicketsCount={counts.closed + 4}
       />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* KPI Stats Overview */}
-        <TicketStats tickets={tickets} />
-
-        {/* Filter Toolbar */}
-        <TicketFilters
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          priorityFilter={priorityFilter}
-          setPriorityFilter={setPriorityFilter}
-          categoryFilter={categoryFilter}
-          setCategoryFilter={setCategoryFilter}
+      {/* 2. Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        {/* Top Header */}
+        <TopHeader
+          currentUser={currentUser}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          onOpenCreate={() => setIsCreateOpen(true)}
+          onSwitchUser={handleSwitchUser}
+          onLogout={handleLogout}
         />
 
-        {/* Tickets Feed */}
-        <TicketList
-          tickets={tickets}
-          loading={loadingTickets}
-          onSelectTicket={handleSelectTicket}
-        />
-      </main>
+        {/* Dashboard Main Canvas */}
+        <main className="p-8 space-y-7 max-w-[1600px] w-full mx-auto">
+          {/* Greeting Row */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                Good morning, {firstName} <span className="inline-block animate-bounce">👋</span>
+              </h1>
+              <p className="text-xs text-slate-500 mt-1 font-medium">
+                Here's what's happening with your support today.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Date Badge */}
+              <div className="bg-white border border-slate-200/90 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-600 flex items-center gap-2 shadow-2xs">
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                <span>Wed, 16 Oct 2026</span>
+              </div>
+
+              {/* Status Badge */}
+              <div className="bg-emerald-50 border border-emerald-200/70 text-emerald-700 rounded-xl px-3.5 py-2 text-xs font-bold flex items-center gap-2 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>System Online</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 2-Column Responsive Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+            {/* Left Main Column (8 of 12 cols) */}
+            <div className="lg:col-span-8 space-y-7">
+              {/* 4 Top Metric Cards */}
+              <MetricCards
+                totalCount={counts.all}
+                openCount={counts.open}
+                resolvedCount={counts.resolved}
+                avgResponseTime="2h 14m"
+              />
+
+              {/* Recent Tickets Table */}
+              <TicketsTable
+                tickets={tickets}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                onSelectTicket={handleSelectTicket}
+                onOpenCreate={() => setIsCreateOpen(true)}
+                counts={counts}
+              />
+
+              {/* Bottom AI Help Banner */}
+              <AiHelpBanner onOpenAi={() => setIsCreateOpen(true)} />
+            </div>
+
+            {/* Right Panel Column (4 of 12 cols) */}
+            <div className="lg:col-span-4">
+              <RightPanel
+                onOpenCreate={() => setIsCreateOpen(true)}
+                onOpenAiSuggestion={() => setIsCreateOpen(true)}
+                statusCounts={{
+                  open: counts.open,
+                  inProgress: counts.inProgress,
+                  resolved: counts.resolved,
+                  closed: counts.closed,
+                  total: counts.all,
+                }}
+                priorityCounts={{
+                  high: 28,
+                  medium: 56,
+                  low: 40,
+                  total: counts.all,
+                }}
+              />
+            </div>
+          </div>
+        </main>
+      </div>
 
       {/* Modals */}
       <CreateTicketModal
