@@ -1,12 +1,12 @@
 import React from "react";
 import {
-  LayoutGrid,
+  LayoutDashboard,
+  Ticket,
   Users,
-  Wallet,
-  Clock,
-  FileText,
-  ShieldAlert,
-  Briefcase,
+  UserCheck,
+  BookOpen,
+  BarChart3,
+  Settings,
   LogOut,
   ChevronRight,
 } from "lucide-react";
@@ -17,10 +17,12 @@ interface SidebarProps {
   activeMenu: string;
   setActiveMenu: (menu: string) => void;
   onOpenPersonaModal: () => void;
-  onLogout: () => void;
-  transactionCount?: number;
-  visaFileCount?: number;
+  onOpenAiModal?: () => void;
+  onLogout?: () => void;
+  openCount?: number;
+  inProgressCount?: number;
   pendingCount?: number;
+  openTicketsCount?: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -29,18 +31,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setActiveMenu,
   onOpenPersonaModal,
   onLogout,
-  transactionCount = 0,
-  visaFileCount = 0,
-  pendingCount = 0,
+  openCount = 48,
+  inProgressCount = 32,
+  pendingCount = 36,
+  openTicketsCount = 48,
 }) => {
   const menuItems = [
-    { id: "Dashboard", label: "ড্যাশবোর্ড ওভারভিউ", icon: LayoutGrid },
-    { id: "Agents", label: "এজেন্ট ডিরেক্টরি", icon: Users },
-    { id: "Ledger", label: "ফাইন্যান্সিয়াল লেজার", icon: Wallet },
-    { id: "BankDeposit", label: "ব্যাংক ডিপোজিট যাচাই", icon: Clock },
-    { id: "VisaTracker", label: "ভিসা প্রসেসিং ট্র্যাকার", icon: FileText },
-    { id: "Blacklist", label: "পাসপোর্ট ব্ল্যাকলিস্ট", icon: ShieldAlert },
-    { id: "JobCircular", label: "জব সার্কুলার বোর্ড", icon: Briefcase },
+    { id: "Dashboard", label: "Dashboard Overview", icon: LayoutDashboard },
+    { id: "Tickets", label: "Tickets Directory", icon: Ticket, badge: openTicketsCount },
+    { id: "Customers", label: "Customers", icon: Users },
+    { id: "Team", label: "Support Agents", icon: UserCheck },
+    { id: "Knowledge Base", label: "Knowledge Base", icon: BookOpen },
+    { id: "Reports", label: "Reports & Analytics", icon: BarChart3 },
+    { id: "Settings", label: "System Settings", icon: Settings },
   ];
 
   const getInitials = (name?: string) => {
@@ -50,53 +53,51 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return name.slice(0, 2).toUpperCase();
   };
 
-  const roleTitle = currentUser?.role === "ADMIN" 
-    ? "সুপার এডমিন (হেড অফিস)"
+  const roleTitle = currentUser?.role === "ADMIN"
+    ? "Super Admin (Head Office)"
     : currentUser?.role === "AGENT"
-    ? "সাপোর্ট এজেন্ট (কন্ট্রোল)"
-    : "কাস্টমার পোর্টাল";
+    ? "Support Agent (Control)"
+    : "Customer Portal";
 
   return (
-    <aside className="w-72 bg-[#282C37] text-slate-300 flex flex-col justify-between shrink-0 h-screen sticky top-0 select-none z-20 border-r border-slate-700/50 p-4 overflow-y-auto">
+    <aside className="w-68 bg-[#282C37] text-slate-300 flex flex-col justify-between shrink-0 h-screen sticky top-0 select-none z-20 border-r border-slate-700/50 p-4 overflow-y-auto">
       <div>
-        {/* Profile Card Header */}
+        {/* Profile Card Header with Avatar & Status */}
         <div className="flex flex-col items-center text-center pt-2 pb-3">
-          {/* Circular Avatar with Green Online Dot */}
-          <div 
+          <div
             onClick={onOpenPersonaModal}
             className="relative cursor-pointer group"
-            title="রোল ও একাউন্ট পরিবর্তন করতে ক্লিক করুন"
+            title="Click to switch persona role"
           >
-            <div className="w-20 h-20 rounded-full border-2 border-white/90 bg-[#1A1D24] flex items-center justify-center text-white text-2xl font-black tracking-wider shadow-md group-hover:scale-105 transition-transform">
+            <div className="w-18 h-18 rounded-full border-2 border-white/90 bg-[#1A1D24] flex items-center justify-center text-white text-xl font-black tracking-wider shadow-md group-hover:scale-105 transition-transform">
               {currentUser?.role === "ADMIN" ? "AD" : getInitials(currentUser?.name)}
             </div>
             {/* Green Online Dot */}
-            <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-[#10B981] border-2 border-[#282C37]"></span>
+            <span className="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-[#10B981] border-2 border-[#282C37]"></span>
           </div>
 
-          {/* User Name & Role */}
-          <h2 className="text-white text-sm font-bold mt-3 leading-snug">
+          <h2 className="text-white text-sm font-bold mt-2.5 leading-snug">
             {roleTitle}
           </h2>
           <p className="text-[11px] text-slate-400 font-medium mt-0.5">
-            সেন্ট্রাল কন্ট্রোল ও হিসাব
+            Central Control & Support
           </p>
 
-          {/* 3 Mini Stats Box Grid */}
-          <div className="w-full grid grid-cols-3 gap-2 mt-4">
+          {/* 3 Mini Stats Box Grid (Ticket Stats) */}
+          <div className="w-full grid grid-cols-3 gap-2 mt-3.5">
             <div className="bg-[#21252F] border border-slate-700/60 rounded-xl py-2 px-1 text-center">
-              <div className="text-sm font-bold text-white leading-tight">{transactionCount}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5 font-medium">লেনদেন</div>
+              <div className="text-sm font-bold text-white leading-tight">{openCount}</div>
+              <div className="text-[10px] text-slate-400 mt-0.5 font-medium">Open</div>
             </div>
 
             <div className="bg-[#21252F] border border-slate-700/60 rounded-xl py-2 px-1 text-center">
-              <div className="text-sm font-bold text-white leading-tight">{visaFileCount}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5 font-medium">ভিসা ফাইল</div>
+              <div className="text-sm font-bold text-white leading-tight">{inProgressCount}</div>
+              <div className="text-[10px] text-slate-400 mt-0.5 font-medium">In Progress</div>
             </div>
 
             <div className="bg-[#21252F] border border-slate-700/60 rounded-xl py-2 px-1 text-center">
               <div className="text-sm font-bold text-[#F59E0B] leading-tight">{pendingCount}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5 font-medium">পেন্ডিং</div>
+              <div className="text-[10px] text-slate-400 mt-0.5 font-medium">Pending</div>
             </div>
           </div>
         </div>
@@ -106,8 +107,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Navigation Menu */}
         <div className="pt-1">
-          <div className="px-3 text-[11px] font-semibold text-slate-400 mb-2">
-            মেনু ও ড্যাশবোর্ড
+          <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+            Menu & Dashboard
           </div>
 
           <nav className="space-y-1">
@@ -132,6 +133,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                   {isActive ? (
                     <ChevronRight className="w-4 h-4 text-white" />
+                  ) : item.badge !== undefined ? (
+                    <span className="text-[10px] px-2 py-0.2 rounded-full bg-slate-700 text-slate-300 font-bold">
+                      {item.badge}
+                    </span>
                   ) : null}
                 </button>
               );
@@ -147,7 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-slate-400 hover:text-red-400 transition-colors"
         >
           <LogOut className="w-4 h-4" />
-          <span>পোর্টাল হতে সাইন আউট</span>
+          <span>Sign Out of Portal</span>
         </button>
       </div>
     </aside>
