@@ -13,6 +13,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.status(200).json({
+    name: "ResolveDesk AI - Ticket Management API",
+    status: "active",
+    health: "/api/v1/health",
+  });
+});
+
 app.get("/api/v1/health", (req, res) => {
   res.status(200).json({
     status: "ok",
