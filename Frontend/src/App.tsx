@@ -9,7 +9,6 @@ import { RightPanel } from "./components/RightPanel";
 import { AiHelpBanner } from "./components/AiHelpBanner";
 import { CreateTicketModal } from "./components/CreateTicketModal";
 import { TicketDetailModal } from "./components/TicketDetailModal";
-import { LoginModal } from "./components/LoginModal";
 import { TicketsView } from "./components/views/TicketsView";
 import { CustomersView } from "./components/views/CustomersView";
 import { SettingsView } from "./components/views/SettingsView";
@@ -19,22 +18,50 @@ import { AuthView } from "./components/views/AuthView";
 import { StaffLoad, ActivityLog } from "./types";
 import { Calendar } from "lucide-react";
 
+export type AppRoute = "AUTH" | "CUSTOMER" | "ADMIN" | "AGENT";
+
+export function getCustomerSlug(user?: User | null): string {
+  if (!user || !user.name) return "portal";
+  const slug = user.name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return slug || "portal";
+}
+
+export function parseRoute(pathname: string): AppRoute {
+  const p = pathname.toLowerCase();
+  if (p === "/auth" || p.startsWith("/auth/") || p === "/login" || p.startsWith("/login/")) {
+    return "AUTH";
+  }
+  if (p.startsWith("/admin")) {
+    return "ADMIN";
+  }
+  if (p.startsWith("/agent") || p.startsWith("/support-agent")) {
+    return "AGENT";
+  }
+  if (p.startsWith("/customer")) {
+    return "CUSTOMER";
+  }
+  return "AUTH";
+}
+
 export function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [authChecking, setAuthChecking] = useState(true);
   const [staffList, setStaffList] = useState<User[]>([]);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("Dashboard");
 
-  // Route state: "/" -> Customer Portal; "/admin" or "/support-agent" -> Staff ERP
-  const [currentRoute, setCurrentRoute] = useState<"CUSTOMER" | "ADMIN">(() => {
+  // Route state: /auth, /customer/:username, /admin, /agent
+  const [currentRoute, setCurrentRoute] = useState<AppRoute>(() => {
     if (typeof window !== "undefined") {
       const p = window.location.pathname.toLowerCase();
-      if (p.startsWith("/admin") || p.startsWith("/support-agent") || p.startsWith("/agent")) {
-        return "ADMIN";
+      if (p !== "/" && p !== "") {
+        return parseRoute(p);
       }
     }
-    return "CUSTOMER";
+    return "AUTH";
   });
 
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -86,30 +113,55 @@ export function App() {
     await loadQueueData();
   };
 
-  // Sync route on popstate (browser back / forward buttons)
-  useEffect(() => {
-    const handleLocationChange = () => {
-      const p = window.location.pathname.toLowerCase();
-      if (p.startsWith("/admin") || p.startsWith("/support-agent") || p.startsWith("/agent")) {
-        setCurrentRoute("ADMIN");
-      } else {
-        setCurrentRoute("CUSTOMER");
-      }
-    };
+  const navigateToAuth = () => {
+    window.history.pushState({}, "", "/auth");
+    setCurrentRoute("AUTH");
+  };
 
-    window.addEventListener("popstate", handleLocationChange);
-    return () => window.removeEventListener("popstate", handleLocationChange);
-  }, []);
+  const navigateToCustomer = (user?: User | null) => {
+    const slug = getCustomerSlug(user || currentUser);
+    window.history.pushState({}, "", `/customer/${slug}`);
+    setCurrentRoute("CUSTOMER");
+  };
 
   const navigateToAdmin = () => {
     window.history.pushState({}, "", "/admin");
     setCurrentRoute("ADMIN");
   };
 
-  const navigateToCustomer = () => {
-    window.history.pushState({}, "", "/");
-    setCurrentRoute("CUSTOMER");
+  const navigateToAgent = () => {
+    window.history.pushState({}, "", "/agent");
+    setCurrentRoute("AGENT");
   };
+
+  const navigateForUserRole = (user: User) => {
+    if (user.role === "CUSTOMER") {
+      navigateToCustomer(user);
+    } else if (user.role === "AGENT") {
+      navigateToAgent();
+    } else {
+      navigateToAdmin();
+    }
+  };
+
+  // Sync route on popstate (browser back / forward buttons)
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const p = window.location.pathname.toLowerCase();
+      if (p === "/" || p === "") {
+        if (currentUser) {
+          navigateForUserRole(currentUser);
+        } else {
+          navigateToAuth();
+        }
+        return;
+      }
+      setCurrentRoute(parseRoute(p));
+    };
+
+    window.addEventListener("popstate", handleLocationChange);
+    return () => window.removeEventListener("popstate", handleLocationChange);
+  }, [currentUser]);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -119,13 +171,27 @@ export function App() {
           const user = await api.getMe();
           setCurrentUser(user);
           loadStaff();
+
+          const initialPath = window.location.pathname.toLowerCase();
+          if (initialPath === "/" || initialPath === "" || initialPath === "/auth" || initialPath === "/login") {
+            navigateForUserRole(user);
+          } else {
+            setCurrentRoute(parseRoute(initialPath));
+          }
         } catch {
           localStorage.removeItem("support_ticket_token");
           localStorage.removeItem("resolvedesk_token");
           setCurrentUser(null);
+          navigateToAuth();
         }
       } else {
         setCurrentUser(null);
+        const initialPath = window.location.pathname.toLowerCase();
+        if (initialPath !== "/auth" && initialPath !== "/login") {
+          navigateToAuth();
+        } else {
+          setCurrentRoute("AUTH");
+        }
       }
       setAuthChecking(false);
     };
@@ -136,6 +202,7 @@ export function App() {
       setCurrentUser(null);
       localStorage.removeItem("support_ticket_token");
       localStorage.removeItem("resolvedesk_token");
+      navigateToAuth();
     };
     window.addEventListener("auth_unauthorized", handleUnauthorized);
     return () => window.removeEventListener("auth_unauthorized", handleUnauthorized);
@@ -145,11 +212,7 @@ export function App() {
     setCurrentUser(user);
     loadStaff();
     loadQueueData();
-    if (user.role === "CUSTOMER") {
-      navigateToCustomer();
-    } else {
-      navigateToAdmin();
-    }
+    navigateForUserRole(user);
   };
 
   const loadStaff = async () => {
@@ -183,9 +246,11 @@ export function App() {
     try {
       const { user, token } = await api.login(email, "password123");
       localStorage.setItem("support_ticket_token", token);
+      localStorage.setItem("resolvedesk_token", token);
       setCurrentUser(user);
       loadStaff();
-      loadQueueData();
+      await Promise.all([loadTickets(), loadQueueData()]);
+      navigateForUserRole(user);
     } catch (err) {
       console.error("Failed to switch persona", err);
     }
@@ -197,7 +262,7 @@ export function App() {
     setCurrentUser(null);
     setTickets([]);
     setQueueTickets([]);
-    setIsLoginOpen(true);
+    navigateToAuth();
   };
 
   const handleSelectTicket = async (ticket: Ticket) => {
@@ -267,12 +332,12 @@ export function App() {
     );
   }
 
-  // 2. PUBLIC ROUTE GUARD: If user is not authenticated, render the dedicated 2-way Sign In / Sign Up view
-  if (!currentUser) {
+  // 2. PUBLIC ROUTE GUARD: If at /auth or user is not authenticated, render dedicated AuthView
+  if (currentRoute === "AUTH" || !currentUser) {
     return <AuthView onAuthSuccess={handleAuthSuccess} />;
   }
 
-  // 3. PRIVATE ROUTE: If at root route "/", render the dedicated Customer Support Portal UI matching user reference
+  // 3. CUSTOMER PORTAL ROUTE: /customer or /customer/:username
   if (currentRoute === "CUSTOMER") {
     return (
       <div className="min-h-screen bg-[#F8F9FA] text-slate-800 font-['Plus_Jakarta_Sans',sans-serif]">
@@ -302,15 +367,6 @@ export function App() {
           onClose={() => setSelectedTicket(null)}
           onRefreshTicket={handleRefreshSingleTicket}
         />
-
-        <LoginModal
-          isOpen={isLoginOpen}
-          onSuccess={(user) => {
-            setCurrentUser(user);
-            setIsLoginOpen(false);
-            loadStaff();
-          }}
-        />
       </div>
     );
   }
@@ -323,7 +379,7 @@ export function App() {
         currentUser={currentUser}
         activeMenu={activeMenu}
         setActiveMenu={setActiveMenu}
-        onOpenPersonaModal={() => setIsLoginOpen(true)}
+        onOpenPersonaModal={() => navigateToCustomer()}
         onOpenAiModal={() => setIsCreateOpen(true)}
         onLogout={handleLogout}
         openCount={counts.open}
@@ -458,15 +514,6 @@ export function App() {
         staffLoads={staffLoads}
         onClose={() => setSelectedTicket(null)}
         onRefreshTicket={handleRefreshSingleTicket}
-      />
-
-      <LoginModal
-        isOpen={isLoginOpen}
-        onSuccess={(user) => {
-          setCurrentUser(user);
-          setIsLoginOpen(false);
-          loadStaff();
-        }}
       />
     </div>
   );

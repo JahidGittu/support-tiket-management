@@ -157,11 +157,11 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           <button
             onClick={onSwitchToCustomerPortal}
             className="border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-semibold text-emerald-400 transition-colors shadow-2xs cursor-pointer"
-            title="Switch to Customer Support Portal (/)"
+            title="Switch to Customer Support Portal (/customer)"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Customer Portal (/)</span>
-            <span className="sm:hidden">Portal (/)</span>
+            <span className="hidden sm:inline">Customer Portal</span>
+            <span className="sm:hidden">Portal</span>
           </button>
         )}
 

@@ -186,7 +186,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                   >
                     <UserIcon className="w-4 h-4 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
                     <span className="text-[11px] font-bold text-slate-800">Customer</span>
-                    <span className="text-[9px] text-slate-400">Portal (/)</span>
+                    <span className="text-[9px] text-emerald-600 font-mono font-medium">/customer</span>
                   </button>
 
                   <button
@@ -197,7 +197,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                   >
                     <Headphones className="w-4 h-4 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
                     <span className="text-[11px] font-bold text-slate-800">Agent</span>
-                    <span className="text-[9px] text-slate-400">Triage ERP</span>
+                    <span className="text-[9px] text-blue-600 font-mono font-medium">/agent</span>
                   </button>
 
                   <button
@@ -208,7 +208,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                   >
                     <Shield className="w-4 h-4 text-purple-600 mb-1 group-hover:scale-110 transition-transform" />
                     <span className="text-[11px] font-bold text-slate-800">Admin</span>
-                    <span className="text-[9px] text-slate-400">Staff ERP</span>
+                    <span className="text-[9px] text-purple-600 font-mono font-medium">/admin</span>
                   </button>
                 </div>
               </div>
