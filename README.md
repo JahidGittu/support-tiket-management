@@ -1,6 +1,6 @@
 # 🚀 ResolveDesk AI — AI-Powered Ticket & Issue Triage System
 
-An end-to-end full-stack customer support and issue resolution platform built for the **NT Tech Innovation Full Stack Developer Assessment**.
+An end-to-end full-stack customer support and issue resolution platform.
 
 ResolveDesk AI automates issue triage by analyzing user-submitted support tickets using **Google Gemini AI** to predict categories, urgency levels, and generate professional response drafts for support agents.
 
@@ -69,7 +69,10 @@ npm run dev      # Starts client on http://localhost:5173
 
 ---
 
-## 📖 Project Governance & Planning
-Detailed specifications, coding rules, and live assessment guides are maintained under:
-- [`Plane/MASTER_PROJECT_PLAN_AND_AI_RULES.md`](./Plane/MASTER_PROJECT_PLAN_AND_AI_RULES.md) — Master Architecture & Human-Code Standard.
-- [`Plane/CANDIDATE_LIVE_CODING_PLAYBOOK.md`](./Plane/CANDIDATE_LIVE_CODING_PLAYBOOK.md) — Live Review & Interview Preparation Playbook.
+## 🏗️ Architecture & Data Flow
+
+1. **Client Submission:** React frontend sends ticket data with client validation.
+2. **API Layer:** Express route validates payload via Zod and checks JWT auth.
+3. **AI Triage:** Gemini 2.5 Flash classifies category, urgency, and auto-generates agent drafts with keyword heuristic fallback.
+4. **Database Persistence:** PostgreSQL via Prisma stores ticket, user relations, and audit activity.
+5. **Real-Time Notification:** Frontend reflects unread ticket events and SLA metrics dynamically.

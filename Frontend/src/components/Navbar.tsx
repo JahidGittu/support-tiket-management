@@ -48,12 +48,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Right side controls */}
         {currentUser && (
           <div className="flex items-center gap-3">
-            {/* Persona Switcher for Live Demo */}
+            {/* Account Switcher */}
             <div className="relative">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200"
-                title="Quickly switch test personas for live interview review"
+                title="Switch demo account"
               >
                 <Shield className="w-3.5 h-3.5 text-slate-500" />
                 <span className="hidden md:inline">Test Persona:</span>

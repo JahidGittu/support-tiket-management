@@ -70,11 +70,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onSuccess }) => 
           </p>
         </div>
 
-        {/* 1-Click Persona Login (Ideal for Live Assessment) */}
+        {/* Quick Demo Accounts */}
         {!isRegister && (
           <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
             <p className="text-[11px] font-bold text-slate-600 uppercase tracking-wider text-center">
-              Quick Test Personas (1-Click)
+              Quick Demo Accounts
             </p>
             <div className="grid grid-cols-3 gap-1.5">
               <button
